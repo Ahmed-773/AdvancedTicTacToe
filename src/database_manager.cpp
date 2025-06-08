@@ -34,5 +34,21 @@ bool DatabaseManager::saveUser(const UserProfile& user) {
     return saveUsers(users);
 }
 
+bool DatabaseManager::SaveGameHistory(const std::vector<GameState>& games) {
+    std::string serialized = SerializeGames(games);
+    return WriteToFile(db_file_path_ + ".games", serialized);
+}
+
+std::vector<GameState> DatabaseManager::LoadGameHistory() {
+    std::string data = ReadFromFile(db_file_path_ + ".games");
+    return DeserializeGames(data);
+}
+
+bool DatabaseManager::SaveGame(const GameState& game) {
+    auto games = LoadGameHistory();
+    games.push_back(game);
+    return SaveGameHistory(games);
+}
+
 
 
