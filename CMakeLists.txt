@@ -1,4 +1,4 @@
-# Final corrected CMakeLists.txt with explicit paths for all targets
+# Final
 cmake_minimum_required(VERSION 3.16)
 
 project(the_final_game VERSION 0.1 LANGUAGES CXX)
@@ -24,15 +24,16 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # --- Main Application Executable ---
+# Using explicit paths to match your repository's file structure
 add_executable(the_final_game
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/gui_interface.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui-interface-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game-logic-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ai-engine-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/user-auth-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/database-manager-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game-history-impl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui_interface.cpp       # Corrected filename
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game_logic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ai_engine.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/user_auth.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/database_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game_history.cpp
 )
 
 # Tell the main target where to find its header files
@@ -47,12 +48,11 @@ target_link_libraries(the_final_game
 )
 
 # --- Test Suite Executable ---
-# Apply the same explicit path fix to the test sources
 add_executable(run_tests
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_suite.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game-logic-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ai-engine-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/user-auth-impl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game_logic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ai_engine.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/user_auth.cpp
 )
 
 # Tell the test target where to find header files
