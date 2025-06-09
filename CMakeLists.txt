@@ -1,4 +1,4 @@
-# Final CMakeLists.txt
+# Final version of CMakeLists.txt
 cmake_minimum_required(VERSION 3.16)
 
 project(the_final_game VERSION 0.1 LANGUAGES CXX)
@@ -24,23 +24,18 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # --- Main Application Executable ---
+# We no longer list header files here. AUTOMOC will find them automatically.
 add_executable(the_final_game
     src/main.cpp
-    include/gui_interface.h
     src/gui-interface-impl.cpp
-    include/game_logic.h
     src/game-logic-impl.cpp
-    include/ai_engine.h
     src/ai-engine-impl.cpp
-    include/user_auth.h
     src/user-auth-impl.cpp
-    include/database_manager.h
     src/database-manager-impl.cpp
-    include/game_history.h
     src/game-history-impl.cpp
 )
 
-# Tell the main target where to find its header files
+# Tell the main target where to find its header files. This is essential.
 target_include_directories(the_final_game PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Link libraries to the main target
@@ -54,7 +49,6 @@ target_link_libraries(the_final_game
 # --- Test Suite Executable ---
 add_executable(run_tests
     tests/test_suite.cpp
-    # Add implementations needed for testing
     src/game-logic-impl.cpp
     src/ai-engine-impl.cpp
     src/user-auth-impl.cpp
