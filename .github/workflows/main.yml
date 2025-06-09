@@ -17,6 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # --- HELPER DEBUGGING STEP ---
+      - name: List files in the repository
+        run: Get-ChildItem -Recurse
+        shell: powershell
+
       # Step 2: Install the required version of Qt
       # This uses a community action to install Qt automatically
       - name: Install Qt
