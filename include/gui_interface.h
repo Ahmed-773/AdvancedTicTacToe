@@ -12,14 +12,16 @@
 #include <QComboBox>
 #include <QRadioButton>
 #include <QMessageBox>
+#include <QStandardPaths>
+#include <QDir>
+#include<string>
+
+// --- ADDED ALL NECESSARY INCLUDES FOR MEMBER VARIABLES ---
 #include "game_logic.h"
 #include "ai_engine.h"
 #include "user_auth.h"
 #include "game_history.h"
 #include "database_manager.h"
-#include <QStandardPaths>
-#include <QDir>
-#include<string>
 
 class GUIInterface : public QMainWindow {
     Q_OBJECT
@@ -84,6 +86,7 @@ private:
     QPushButton *backToGameButton;
     
     // Private helper methods
+    void applyStylesheet();
     void setupUI();
     void setupAuthentication();
     void setupGameBoard();

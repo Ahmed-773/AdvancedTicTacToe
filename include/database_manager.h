@@ -6,6 +6,7 @@
 #include "game_history.h"
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <fstream>
 #include <QStandardPaths>
 

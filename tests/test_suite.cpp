@@ -9,9 +9,9 @@ Description: Comprehensive test suite using the Google Test framework as
 
 // Include headers for the classes we need to test
 // The paths assume tests are run from the build directory
-#include "../game_logic.h"
-#include "../ai_engine.h"
-#include "../user_auth.h"
+#include "game_logic.h"
+#include "ai_engine.h"
+#include "user_auth.h"
 
 // --- Test Fixture for GameLogic ---
 class GameLogicTest : public ::testing::Test {
