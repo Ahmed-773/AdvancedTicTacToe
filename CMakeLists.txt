@@ -1,4 +1,4 @@
-# Final, super-explicit CMakeLists.txt for maximum compatibility
+# Final, automated CMakeLists.txt for CI/CD robustness
 cmake_minimum_required(VERSION 3.16)
 
 project(the_final_game VERSION 0.1 LANGUAGES CXX)
@@ -23,20 +23,16 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-# --- Main Application Executable ---
-# We now use ${CMAKE_CURRENT_SOURCE_DIR} to give the full, unambiguous path to every file.
-add_executable(the_final_game
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/gui_interface.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui-interface-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game-logic-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ai-engine-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/user-auth-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/database-manager-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game-history-impl.cpp
-)
+# --- Automatically find all source and header files ---
+# This globbing approach is more robust for CI environments.
+file(GLOB_RECURSE APP_SOURCES "src/*.cpp")
+file(GLOB_RECURSE APP_HEADERS "include/*.h")
 
-# Tell the main target where to find its header files
+# --- Main Application Executable ---
+# We now use the variables that contain our discovered source files.
+add_executable(the_final_game ${APP_SOURCES} ${APP_HEADERS})
+
+# Tell the main target where to find its header files. This remains essential.
 target_include_directories(the_final_game PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Link libraries to the main target
@@ -49,10 +45,10 @@ target_link_libraries(the_final_game
 
 # --- Test Suite Executable ---
 add_executable(run_tests
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_suite.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game-logic-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ai-engine-impl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/user-auth-impl.cpp
+    tests/test_suite.cpp
+    src/game-logic-impl.cpp
+    src/ai-engine-impl.cpp
+    src/user-auth-impl.cpp
 )
 
 # Tell the test target where to find header files
