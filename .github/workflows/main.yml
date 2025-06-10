@@ -1,0 +1,65 @@
+name: C++ CI with Qt and vcpkg
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        id: install-qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.9.1'
+          arch: 'win64_msvc2022_64'
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: D:/a/vcpkg
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/CMakeLists.txt') }}
+
+      - name: Setup vcpkg
+        run: |
+          git clone https://github.com/Microsoft/vcpkg.git D:/a/vcpkg
+          cd D:/a/vcpkg
+          ./bootstrap-vcpkg.bat
+        shell: cmd
+
+      - name: Install dependencies
+        run: |
+          cd D:/a/vcpkg
+          ./vcpkg.exe install openssl:x64-windows
+
+      - name: Configure CMake
+        # This mimics the local build process and is the most robust method
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -DQt6_DIR=${{ steps.install-qt.outputs.qtPath }}/lib/cmake/Qt6 -DCMAKE_TOOLCHAIN_FILE=D:/a/vcpkg/scripts/buildsystems/vcpkg.cmake
+        shell: cmd
+        env:
+          QT_VERSION: '6.9.1'
+
+      - name: Build
+        run: cmake --build . --config Debug
+        working-directory: ./build
+
+      - name: Run tests
+        run: Debug/run_tests.exe
+        working-directory: ./build
+
+      - name: Upload Build Artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Final-Game-Windows
+          path: build/Debug/

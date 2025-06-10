@@ -1,12 +1,12 @@
-
 #include "database_manager.h"
 #include <sstream>
 #include <iostream>
 #include <filesystem>
 #include <fstream>
-DatabaseManager::DatabaseManager(std::string dbFilePath) : dbFilePath(dbFilePath) {
+
+DatabaseManager::DatabaseManager(std::string dbFilePath) : db_file_path_(dbFilePath) {
     // Create directory if it doesn't exist
-    std::filesystem::path dir = std::filesystem::path(dbFilePath).parent_path();
+    std::filesystem::path dir = std::filesystem::path(db_file_path_).parent_path();
     if (!dir.empty() && !std::filesystem::exists(dir)) {
         std::filesystem::create_directories(dir);
     }
