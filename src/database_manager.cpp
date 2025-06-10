@@ -4,7 +4,6 @@
 #include <filesystem>
 #include <fstream>
 
-
 DatabaseManager::DatabaseManager(std::string dbFilePath) : db_file_path_(dbFilePath) {
     // Create directory if it doesn't exist
    std::filesystem::path dir = std::filesystem::path(db_file_path_).parent_path();

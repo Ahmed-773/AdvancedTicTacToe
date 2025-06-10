@@ -7,41 +7,22 @@
 #include <QStandardPaths>
 #include <QDir>
 
-// Function to run the application in test mode (for CI/CD pipeline)
-// bool runTests() {
-//     std::cout << "Running tests..." << std::endl;
+int main(int argc, char *argv[]) {
+    // Initialize the Qt Application
+    QApplication app(argc, argv);
+
+    // Set up a standard path for storing application data (like the database)
+    // This ensures the application has write permissions.
+    QString writablePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(writablePath); // Create the directory if it doesn't exist
+
+    // Construct the full path for the database file
+    std::string dbFullPath = (writablePath + "/tictactoe_data.db").toStdString();
+
+    // Create and show the main GUI window
+    GUIInterface gui(dbFullPath);
+    gui.show();
     
-//     // Test game logic
-//     GameLogic game;
-//     if (game.getCurrentPlayer() != Player::X) {
-//         std::cerr << "Test failed: Initial player should be X" << std::endl;
-//         return false;
-//     }
-    
-//     // Test making moves
-//     if (!game.makeMove(0, 0)) {
-//         std::cerr << "Test failed: Failed to make a valid move" << std::endl;
-//         return false;
-//     }
-    
-//     if (game.getCurrentPlayer() != Player::O) {
-//         std::cerr << "Test failed: Player should switch to O after X's move" << std::endl;
-//         return false;
-//     }
-    
-//     if (game.getCell(0, 0) != Player::X) {
-//         std::cerr << "Test failed: Cell (0,0) should be X" << std::endl;
-//         return false;
-//     }
-    
-//     // Test AI engine
-//     AIEngine ai;
-//     Move aiMove = ai.getBestMove(game);
-//     if (aiMove.row < 0 || aiMove.row > 2 || aiMove.col < 0 || aiMove.col > 2) {
-//         std::cerr << "Test failed: AI returned invalid move" << std::endl;
-//         return false;
-//     }
-    
-//     std::cout << "All tests passed!" << std::endl;
-//     return true;
-// }
+    // Start the Qt event loop
+    return app.exec();
+}
