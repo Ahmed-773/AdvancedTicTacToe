@@ -37,15 +37,14 @@ public:
     
     std::string generateSessionToken();
     bool validateSession(const std::string& token);
-//
-    std::string hashPassword(const std::string& password);
-    bool verifyPassword(const std::string& password, const std::string& hashedPassword);
-//
+    
 private:
     std::unordered_map<std::string, UserProfile> users;
     UserProfile* currentUser;
     std::string currentSessionToken;
     
+    std::string hashPassword(const std::string& password);
+    bool verifyPassword(const std::string& password, const std::string& hashedPassword);
     std::string generateUserId();
 };
 
