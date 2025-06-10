@@ -6,7 +6,6 @@
 #include "game_history.h"
 #include <string>
 #include <vector>
-#include <unordered_map>
 #include <fstream>
 #include <QStandardPaths>
 
@@ -28,7 +27,7 @@ public:
     bool saveGame(const GameState& game);
 
 private:
-    std::string dbFilePath;
+    std::string db_file_path_;
 
     // File I/O helpers
     bool writeToFile(const std::string& filename, const std::string& data);

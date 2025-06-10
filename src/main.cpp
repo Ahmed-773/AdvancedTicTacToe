@@ -1,5 +1,7 @@
 // main.cpp
 #include "gui_interface.h"
+#include "game_logic.h"
+#include "ai_engine.h
 #include <QApplication>
 #include <iostream>
 #include <QStandardPaths>
