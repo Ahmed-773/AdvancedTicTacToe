@@ -4,9 +4,10 @@
 #include <filesystem>
 #include <fstream>
 
-DatabaseManager::DatabaseManager(std::string dbFilePath) : dbFilePath(dbFilePath) {
+
+DatabaseManager::DatabaseManager(std::string dbFilePath) : db_file_path_(dbFilePath) {
     // Create directory if it doesn't exist
-    std::filesystem::path dir = std::filesystem::path(dbFilePath).parent_path();
+   std::filesystem::path dir = std::filesystem::path(db_file_path_).parent_path();
     if (!dir.empty() && !std::filesystem::exists(dir)) {
         std::filesystem::create_directories(dir);
     }
@@ -18,11 +19,11 @@ DatabaseManager::~DatabaseManager() {
 
 bool DatabaseManager::saveUsers(const std::unordered_map<std::string, UserProfile>& users) {
     std::string serialized = serializeUsers(users);
-    return writeToFile(dbFilePath + ".users", serialized);
+    return writeToFile(db_file_path_ + ".users", serialized);
 }
 
 std::unordered_map<std::string, UserProfile> DatabaseManager::loadUsers() {
-    std::string data = readFromFile(dbFilePath + ".users");
+    std::string data = readFromFile(db_file_path_ + ".users");
     return deserializeUsers(data);
 }
 
@@ -36,11 +37,11 @@ bool DatabaseManager::saveUser(const UserProfile& user) {
 // part 2
 bool DatabaseManager::saveGameHistory(const std::vector<GameState>& games) {
     std::string serialized = serializeGames(games);
-    return writeToFile(dbFilePath + ".games", serialized);
+    return writeToFile(db_file_path_ + ".games", serialized);
 }
 
 std::vector<GameState> DatabaseManager::loadGameHistory() {
-    std::string data = readFromFile(dbFilePath + ".games");
+    std::string data = readFromFile(db_file_path_ + ".games");
     return deserializeGames(data);
 }
 
@@ -74,7 +75,6 @@ std::string DatabaseManager::serializeUsers(const std::unordered_map<std::string
     std::stringstream ss;
     for (const auto& pair : users) {
         const UserProfile& user = pair.second;
-        // FIXED: All members changed to camelCase to match struct definition
         ss << user.userId << "|"
            << user.username << "|"
            << user.passwordHash << "|"

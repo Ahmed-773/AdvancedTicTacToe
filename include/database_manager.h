@@ -28,7 +28,7 @@ public:
     bool saveGame(const GameState& game);
 
 private:
-    std::string db_file_path_;
+    std::string db_file_path_; // to store the full file path to the database file on the computer's disk
 
     // File I/O helpers
     bool writeToFile(const std::string& filename, const std::string& data);
