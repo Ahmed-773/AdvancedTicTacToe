@@ -26,7 +26,7 @@ Move AIEngine::getBestMove(const GameLogic& gameState) {
         boardCopy.makeMove(move.row, move.col);
 
         // Calculate score with minimax
-        int score = minimax(boardCopy, difficulty, false);
+        int score = minimax(boardCopy, difficulty, false, std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 
         // Update best move if found
         if (score > bestScore) {
@@ -39,10 +39,9 @@ Move AIEngine::getBestMove(const GameLogic& gameState) {
 }
 
 int AIEngine::minimax(GameLogic gameState, int depth, bool isMaximizing, int alpha, int beta) {
-
+    return 0;
 }
 
 int AIEngine::evaluateBoard(const GameLogic& gameState, Player aiPlayer) {
-
+    return 0;
 }
-// #include "ai_engine.h"
