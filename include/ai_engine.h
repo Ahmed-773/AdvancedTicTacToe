@@ -20,6 +20,8 @@ private:
 
     int evaluateBoard(const GameLogic& gameState, Player aiPlayer);
     Player getAIPlayer(const GameLogic& gameState);
+    
+private:
 };
 
 #endif // AI_ENGINE_H
