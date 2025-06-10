@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <unordered_map>
 #include <QStandardPaths>
 
 class DatabaseManager {

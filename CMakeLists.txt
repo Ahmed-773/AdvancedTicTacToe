@@ -28,7 +28,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(the_final_game
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/gui_interface.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui_interface.cpp       # Corrected filename
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui_interface.cpp       
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game_logic.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ai_engine.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/user_auth.cpp
