@@ -84,6 +84,7 @@ private:
     QPushButton *backToGameButton;
     
     // Private helper methods
+    void applyStylesheet();
     void setupUI();
     void setupAuthentication();
     void setupGameBoard();
