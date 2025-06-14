@@ -31,25 +31,29 @@ struct GameState {
 class GameLogic {
 public:
     GameLogic();
+
     void resetBoard();
     bool makeMove(int row, int col);
     bool isValidMove(int row, int col) const;
     GameResult checkGameResult() const;
+
+    // This function is now public for testing purposes.
+    bool isBoardFull() const;
+
     Player getCurrentPlayer() const;
     Player getCell(int row, int col) const;
-    const std::array<std::array<Player, 3>, 3>& getBoard() const;
-    std::vector<Move> getAvailableMoves() const;
-    void undoLastMove();
-    void recordMove(int row, int col);
     const std::vector<Move>& getMoveHistory() const;
-
+    std::vector<Move> getAvailableMoves() const;
+    const std::array<std::array<Player, 3>, 3>& getBoard() const;
+    
 private:
     std::array<std::array<Player, 3>, 3> board;
     Player currentPlayer;
     std::vector<Move> moveHistory;
 
     bool checkWin(Player player) const;
-    bool isBoardFull() const;
+    void recordMove(int row, int col);
+    void undoLastMove();
 };
 
 #endif // GAME_LOGIC_H
