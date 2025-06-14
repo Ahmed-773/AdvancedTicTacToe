@@ -12,16 +12,15 @@
 #include <QComboBox>
 #include <QRadioButton>
 #include <QMessageBox>
+#include "database_manager.h"
 #include <QStandardPaths>
 #include <QDir>
 #include<string>
-
-// --- ADDED ALL NECESSARY INCLUDES FOR MEMBER VARIABLES ---
+// --- ALL NECESSARY INCLUDES FOR MEMBER VARIABLES ---
+#include "user_auth.h"
 #include "game_logic.h"
 #include "ai_engine.h"
-#include "user_auth.h"
 #include "game_history.h"
-#include "database_manager.h"
 
 class GUIInterface : public QMainWindow {
     Q_OBJECT
