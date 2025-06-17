@@ -150,7 +150,7 @@ Stores completed games for users and allows them to view or replay them.
 ## 4. UML Diagrams
 ### 4.1 Class Diagram  
 This diagram would show how all the major classes relate to each other. `GUIInterface` uses (has-a) the backend classes like `GameLogic`, `AIEngine`, `UserAuth`, etc.
-> ![alt text](https://cdn.discordapp.com/attachments/1180242812827091054/1384672971586539680/Editor___Mermaid_Chart-2025-06-17-231449.png?ex=685348b2&is=6851f732&hm=5e9f0d0f0ce086aed905ee8df4c6cfe6dc4b6f28f387e4cb9da4bc86b640c85d&)
+> ![alt text](<Editor _ Mermaid Chart-2025-06-17-231449.png>)
 
 ### 4.2 Sequence Diagram: User Login  
 Here’s what happens when a user logs in:
@@ -172,7 +172,8 @@ Here’s the process when it’s the user vs. AI:
 6. The move is sent back to the GUI.
 7. GUI makes the AI’s move and updates the board again.
 
-![alt text](<Editor _ Mermaid Chart-2025-06-17-232507.png>)
+> ![alt text](<Editor _ Mermaid Chart-2025-06-17-232507.png>)
+
 ---
 
 ## 5. Data Design
