@@ -1,7 +1,7 @@
-# Software Design Specification (SDS)  
-## Advanced Tic Tac Toe Game  
+# Software Design Specification (SDS) for Advanced Tic Tac Toe Game 
 
 **Version 1.0**
+
 ---
 
 ## Table of Contents  

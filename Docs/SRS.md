@@ -1,116 +1,89 @@
-Software Requirements Specification (SRS)
-Advanced Tic Tac Toe Game
+# Software Requirements Specification (SRS) for Advanced Tic Tac Toe Game
+
 Version 1.0
 
-Table of Contents
-Introduction
+## Table of Contents
 
-1.1. Purpose
+1. **Introduction**
 
-1.2. Scope
+- 1.1. Purpose
+- 1.2. Scope
+- 1.3. Definitions, Acronyms, and Abbreviations
 
-1.3. Definitions, Acronyms, and Abbreviations
+2. **Overall Description**
 
-Overall Description
+- 2.1. Product Perspective
+- 2.2. Product Functions
+- 2.3. User Characteristics
 
-2.1. Product Perspective
+3. **System Features and Requirements**
 
-2.2. Product Functions
+- 3.1. Functional Requirements
+  - 3.1.1. User Authentication
+  - 3.1.2. Gameplay Mechanics
+  - 3.1.3. AI Opponent
+  - 3.1.4. User Profile and Statistics
+- 3.2. Non-Functional Requirements
+  - 3.2.1. Performance
+  - 3.2.2. Security
+  - 3.2.3. Usability
+  - 3.2.4. Reliability
+  - 3.2.5. Maintainability
 
-2.3. User Characteristics
+4. **External Interface Requirements**
+   - 4.1. User Interfaces
+   - 4.2. Software Interfaces
 
-System Features and Requirements
+---
 
-3.1. Functional Requirements
+## 1. Introduction
 
-3.1.1. User Authentication
+### 1.1. Purpose
 
-3.1.2. Gameplay Mechanics
-
-3.1.3. AI Opponent
-
-3.1.4. User Profile and Statistics
-
-3.2. Non-Functional Requirements
-
-3.2.1. Performance
-
-3.2.2. Security
-
-3.2.3. Usability
-
-3.2.4. Reliability
-
-3.2.5. Maintainability
-
-External Interface Requirements
-
-4.1. User Interfaces
-
-4.2. Software Interfaces
-
-1. Introduction
-1.1. Purpose
 This Software Requirements Specification (SRS) document provides a detailed description of the requirements for the Advanced Tic Tac Toe game. It outlines the functional and non-functional requirements of the system and serves as the foundational agreement between the development team and the stakeholders on what the product will do.
 
-1.2. Scope
+### 1.2. Scope
+
 The product is a desktop application that modernizes the classic Tic Tac Toe game. It will feature a graphical user interface (GUI), a robust user account system, persistent storage of player statistics, and a challenging AI opponent. The scope includes the game logic, user management, AI engine, and data persistence layers.
 
-1.3. Definitions, Acronyms, and Abbreviations
-Term
+### 1.3. Definitions, Acronyms, and Abbreviations
 
-Definition
+![alt text](image.png)
 
-GUI
+## 2. Overall Description
 
-Graphical User Interface
+### 2.1. Product Perspective
 
-AI
-
-Artificial Intelligence
-
-SRS
-
-Software Requirements Specification
-
-CI/CD
-
-Continuous Integration / Continuous Deployment
-
-MVC
-
-Model-View-Controller, a software design pattern
-
-2. Overall Description
-2.1. Product Perspective
 The Advanced Tic Tac Toe game is a self-contained desktop application built using C++ and the Qt framework. It follows a modular architecture to separate core logic from the user interface, enhancing testability and maintainability.
 
-2.2. Product Functions
-The major functions of the system are:
+### 2.2. Product Functions
 
-Secure user registration and login.
+**The major functions of the system are**:
 
-Interactive Player vs. AI gameplay.
+- Secure user registration and login.
+- Interactive Player vs. AI gameplay.
+- Automatic tracking and display of user game statistics.
+- A challenging AI opponent powered by the Minimax algorithm.
+- Persistent storage of user profiles and statistics across sessions.
 
-Automatic tracking and display of user game statistics.
+### 2.3. User Characteristics
 
-A challenging AI opponent powered by the Minimax algorithm.
-
-Persistent storage of user profiles and statistics across sessions.
-
-2.3. User Characteristics
 The target users are individuals who enjoy classic strategy games. Users are expected to be familiar with standard GUI operations (mouse clicks, typing in text fields) but require no specialized technical knowledge.
 
-3. System Features and Requirements
-3.1. Functional Requirements
-3.1.1. User Authentication
+## 3. System Features and Requirements
+
+### 3.1. Functional Requirements
+
+#### 3.1.1. User Authentication
+
 FR-1 (User Registration): The system shall allow a new user to create an account by providing a unique username and a password. The system shall reject registration if the username is already taken.
 
 FR-2 (User Login): The system shall allow a registered user to log in using their username and password. Upon successful login, the user's session shall become active.
 
 FR-3 (User Logout): The system shall allow a logged-in user to log out, ending their session.
 
-3.1.2. Gameplay Mechanics
+#### 3.1.2. Gameplay Mechanics
+
 FR-4 (Game Board Display): The system shall display a 3x3 grid as the game board.
 
 FR-5 (Making a Move): The system shall allow the current player to place their mark (X or O) in an empty cell by clicking on it. The system shall not allow a move in an occupied cell.
@@ -123,12 +96,14 @@ FR-8 (Draw Detection): The system shall automatically detect and declare a draw 
 
 FR-9 (New Game): The system shall provide an option to start a new game at any time, which resets the board to its initial state.
 
-3.1.3. AI Opponent
+#### 3.1.3. AI Opponent
+
 FR-10 (AI Gameplay): The system shall provide a Player vs. AI game mode where the user plays against a computer-controlled opponent.
 
 FR-11 (AI Decision Making): The AI opponent shall use the Minimax algorithm to determine its optimal move. The AI shall be capable of blocking opponent wins and securing its own wins when possible.
 
-3.1.4. User Profile and Statistics
+#### 3.1.4. User Profile and Statistics
+
 FR-12 (Stat Tracking): The system shall track the following statistics for each registered user: Games Played, Games Won, Games Lost, and Games Tied.
 
 FR-13 (Stat Updates): The system shall automatically update the logged-in user's statistics at the conclusion of each game.
@@ -137,37 +112,46 @@ FR-14 (Profile View): The system shall provide a screen where the logged-in user
 
 FR-15 (Data Persistence): User profiles and statistics shall be saved to local files and persist between application sessions.
 
-3.2. Non-Functional Requirements
-3.2.1. Performance
+### 3.2. Non-Functional Requirements
+
+#### 3.2.1. Performance
+
 NFR-1 (AI Response Time): The AI's move calculation shall take no longer than 500 milliseconds on the target hardware to ensure a responsive user experience.
 
-3.2.2. Security
+#### 3.2.2. Security
+
 NFR-2 (Password Hashing): User passwords shall never be stored in plaintext. The system must use a strong one-way hashing algorithm (SHA-256) to store password credentials.
 
-3.2.3. Usability
+#### 3.2.3. Usability
+
 NFR-3 (Intuitive Interface): The GUI shall be clean, intuitive, and easy to navigate for users with no prior training. All interactive elements shall be clearly labeled.
 
-3.2.4. Reliability
+#### 3.2.4. Reliability
+
 NFR-4 (System Stability): The application shall be stable and handle user errors (e.g., invalid login attempts) gracefully without crashing.
 
 NFR-5 (Continuous Integration): The project shall be supported by a CI/CD pipeline that automatically builds and runs a test suite on every code change to ensure the main branch remains stable.
 
-3.2.5. Maintainability
+#### 3.2.5. Maintainability
+
 NFR-6 (Modularity): The source code shall be organized into decoupled modules (e.g., GameLogic, UserAuth, AIEngine) to facilitate easier updates and maintenance.
 
 NFR-7 (Code Documentation): All major classes and complex functions shall be clearly documented with comments explaining their purpose and behavior.
 
-4. External Interface Requirements
-4.1. User Interfaces
-The application will present a graphical user interface with three primary views:
+# 4. External Interface Requirements
 
-Authentication View: Fields for username/password, and buttons for Login/Register.
+## 4.1. User Interfaces
 
-Game View: The 3x3 game board, a status label, and buttons for New Game, Profile, and Logout.
+**The application will present a graphical user interface with three primary views**:
 
-Profile View: Display of user statistics and a button to return to the game.
+- Authentication View: Fields for username/password, and buttons for Login/Register.
 
-4.2. Software Interfaces
-Qt 6 Framework: The application depends on the Qt 6 libraries for its GUI components and core functionalities.
+- Game View: The 3x3 game board, a status label, and buttons for New Game, Profile, and Logout.
 
-OpenSSL: The application depends on the OpenSSL library for the SHA-256 hashing algorithm.
+- Profile View: Display of user statistics and a button to return to the game.
+
+## 4.2. Software Interfaces
+
+- Qt 6 Framework: The application depends on the Qt 6 libraries for its GUI components and core functionalities.
+
+- OpenSSL: The application depends on the OpenSSL library for the SHA-256 hashing algorithm.
