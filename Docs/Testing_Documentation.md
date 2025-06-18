@@ -1,20 +1,18 @@
 # Testing Documentation for Advanced Tic Tac Toe Game
 
-**Version 1.0**  
-
 ---
 
 ## Table of Contents
 
 1. **Introduction**
-  - 1.1. Purpose
-  - 1.2. Testing Strategy
-  - 1.3. Testing Framework
+   * 1.1. Purpose
+   * 1.2. Testing Strategy
+   * 1.3. Testing Framework
 2. **Test Environment**
 3. **Test Cases and Execution**
-  - 3.1. GameLogic Module Tests
-  - 3.2. AIEngine Module Tests
-  - 3.3. UserAuth Module Tests
+    * 3.1. GameLogic Module Tests
+    * 3.2. AIEngine Module Tests
+    * 3.3. UserAuth Module Tests
 4. **Test Results**
 5. **Test Coverage Analysis**
 

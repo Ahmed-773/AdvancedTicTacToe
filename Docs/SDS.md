@@ -1,29 +1,26 @@
 # Software Design Specification (SDS) for Advanced Tic Tac Toe Game 
 
-**Version 1.0**
-
 ---
 
 ## Table of Contents  
-- [1. Introduction](#1-introduction)  
-  - [1.1 Purpose](#11-purpose)  
-- [2. System Architecture](#2-system-architecture)  
-  - [2.1 Architectural Design](#21-architectural-design)  
-- [3. Detailed Component Design](#3-detailed-component-design)  
-  - [3.1 GUIInterface Class](#31-guiinterface-class)  
-  - [3.2 GameLogic Class](#32-gamelogic-class)  
-  - [3.3 AIEngine Class](#33-aiengine-class)  
-  - [3.4 UserAuth Class](#34-userauth-class)  
-  - [3.5 DatabaseManager Class](#35-databasemanager-class)  
-  - [3.6 GameHistory Class](#36-gamehistory-class)  
-- [4. UML Diagrams](#4-uml-diagrams)  
-  - [4.1 Class Diagram](#41-class-diagram)  
-  - [4.2 Sequence Diagram: User Login](#42-sequence-diagram-user-login)  
-  - [4.3 Sequence Diagram: Player vs. AI Move](#43-sequence-diagram-player-vs-ai-move)  
-- [5. Data Design](#5-data-design)  
-  - [5.1 Key Data Structures](#51-key-data-structures)  
-  - [5.2 Database Schema](#52-database-schema)  
-
+1.  **Introduction**
+    * 1.1 Purpose
+2.  **System Architecture**
+    * 2.1 Architectural Design
+3.  **Detailed Component Design**
+    * 3.1 GUIInterface Class
+    * 3.2 GameLogic Class
+    * 3.3 AIEngine Class
+    * 3.4 UserAuth Class
+    * 3.5 DatabaseManager Class
+    * 3.6 GameHistory Class
+4.  **UML Diagrams**
+    * 4.1 Class Diagram
+    * 4.2 Sequence Diagram: User Login
+    * 4.3 Sequence Diagram: Player vs. AI Move
+5.  **Data Design**
+    * 5.1 Key Data Structures
+    * 5.2 Database Schema
 ---
 
 ## 1. Introduction
