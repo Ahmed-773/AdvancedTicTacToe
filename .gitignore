@@ -1,5 +1,7 @@
 # Build output folder
 /build/
+/Final-Game-Windows/
+/Advanced-Tic-Tac-Toe-v1.0.0-Windows/
 
 # Prerequisites
 *.d
