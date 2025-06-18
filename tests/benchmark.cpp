@@ -10,64 +10,42 @@ Purpose: A dedicated command-line executable for performance benchmarking.
 #include "game_logic.h"
 #include <iostream>
 #include <chrono>
-#include <vector>
-
-// Function to run a benchmark on a given board state
-void run_benchmark(const std::string& test_name, const std::vector<std::vector<char>>& board) {
-    AIEngine ai;
-    GameState state;
-    state.board = board;
-    state.currentPlayer = 'O'; // Assume AI is 'O'
-    state.result = GameResult::IN_PROGRESS;
-
-    // Start the timer
-    auto start_time = std::chrono::high_resolution_clock::now();
-
-    // Run the AI's core logic
-    Move bestMove = ai.findBestMove(state.board);
-
-    // Stop the timer
-    auto end_time = std::chrono::high_resolution_clock::now();
-    
-    // Calculate the duration in milliseconds
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-
-    // Print the results in a simple CSV-like format
-    std::cout << test_name << "," << duration.count() << std::endl;
-}
 
 int main() {
-    // Print a header for our CSV output
+    // Print a header for our CSV output. This makes the results easy to parse.
     std::cout << "TestName,Duration(ms)" << std::endl;
 
-    // --- Define Benchmark Scenarios ---
+    AIEngine ai_engine;
+    GameLogic game_logic;
 
-    // Scenario 1: A mid-game state with several possible moves.
-    // This represents a typical, moderately complex calculation.
-    std::vector<std::vector<char>> mid_game_board = {
-        {'X', ' ', ' '},
-        {' ', 'O', ' '},
-        {'X', ' ', ' '}
-    };
-    run_benchmark("Mid-Game-Scenario", mid_game_board);
+    // --- Benchmark Scenario 1: Early-Game Move ---
+    // The AI has to make its first move. This should be very fast.
+    game_logic.resetBoard();
+    game_logic.makeMove(0, 0); // Player X makes the first move.
 
-    // Scenario 2: An early-game state.
-    // This should be very fast.
-    std::vector<std::vector<char>> early_game_board = {
-        {'X', ' ', ' '},
-        {' ', ' ', ' '},
-        {' ', ' ', ' '}
-    };
-    run_benchmark("Early-Game-Scenario", early_game_board);
+    // Now, time how long the AI takes to respond.
+    [cite_start]// We pass the entire 'game_logic' object, as required by ai_engine.h [cite: 2]
+    auto start_early = std::chrono::high_resolution_clock::now();
+    ai_engine.getBestMove(game_logic);
+    auto end_early = std::chrono::high_resolution_clock::now();
+    auto duration_early = std::chrono::duration_cast<std::chrono::milliseconds>(end_early - start_early);
+    std::cout << "Early-Game-Scenario," << duration_early.count() << std::endl;
 
-    // Scenario 3: A more complex late-game state.
-    // This will likely be the longest calculation.
-     std::vector<std::vector<char>> late_game_board = {
-        {'X', 'O', 'X'},
-        {' ', 'O', ' '},
-        {' ', 'X', ' '}
-    };
-    run_benchmark("Late-Game-Scenario", late_game_board);
+
+    // --- Benchmark Scenario 2: Mid-Game Blocking Move ---
+    // Set up a scenario where the AI must make a defensive move.
+    game_logic.resetBoard();
+    game_logic.makeMove(0, 0); // X
+    game_logic.makeMove(2, 2); // O (AI)
+    game_logic.makeMove(0, 1); // X (Player is threatening a win on the top row)
+    
+    // Now, time how long the AI takes to find the blocking move (0,2).
+    // Again, we pass the entire 'game_logic' object.
+    auto start_mid = std::chrono::high_resolution_clock::now();
+    ai_engine.getBestMove(game_logic);
+    auto end_mid = std::chrono::high_resolution_clock::now();
+    auto duration_mid = std::chrono::duration_cast<std::chrono::milliseconds>(end_mid - start_mid);
+    std::cout << "Mid-Game-Blocking-Scenario," << duration_mid.count() << std::endl;
 
     return 0;
 }
