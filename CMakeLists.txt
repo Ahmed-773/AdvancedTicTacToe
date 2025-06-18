@@ -42,6 +42,16 @@ add_executable(run_tests
 target_include_directories(run_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(run_tests PRIVATE Qt6::Test OpenSSL::SSL)
 
+# --- Benchmark Executable ---
+# This defines a new, non-GUI executable for performance measurement.
+add_executable(benchmark
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark.cpp
+    # It needs the same backend logic as the tests
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game_logic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ai_engine.cpp
+)
+target_include_directories(benchmark PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 # Finalize Qt Executable
 set_target_properties(the_final_game PROPERTIES WIN32_EXECUTABLE TRUE MACOSX_BUNDLE TRUE)
 qt_finalize_executable(the_final_game)

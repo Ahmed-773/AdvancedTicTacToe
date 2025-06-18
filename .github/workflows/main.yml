@@ -50,14 +50,32 @@ jobs:
           QT_VERSION: '6.9.1'
 
       - name: Build
+        # This will now build all three executables: the_final_game, run_tests, and benchmark
         run: cmake --build . --config Debug
         working-directory: ./build
 
       - name: Run tests
+        # This step verifies the correctness of the code
         run: Debug/run_tests.exe
         working-directory: ./build
+      
+      # --- NEW: PERFORMANCE BENCHMARKING STEPS ---
+      - name: Run Benchmarks
+        # This new step runs the performance benchmark executable and saves its output to a file.
+        run: Debug/benchmark.exe > benchmark_results.csv
+        working-directory: ./build
+
+      - name: Upload Benchmark Results
+        # This step saves the performance results as a downloadable "artifact".
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Benchmark-Results-Windows
+          path: build/benchmark_results.csv
+      # --- END OF NEW STEPS ---
 
       - name: Upload Build Artifacts
+        # This step saves the final compiled game executable.
         if: success()
         uses: actions/upload-artifact@v4
         with:
