@@ -89,6 +89,7 @@ int AIEngine::evaluateBoard(const GameLogic& gameState, Player aiPlayer) {
     // Terminal state evaluation
     if (result == GameResult::X_WINS) {
         return (aiPlayer == Player::X) ? 10 : -10;
+    }
     if (result == GameResult::O_WINS) {
         return (aiPlayer == Player::O) ? 10 : -10;
     }
