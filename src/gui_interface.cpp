@@ -530,14 +530,17 @@ void GUIInterface::loadUserGames() {
 }
 
 void GUIInterface::displayGame(const GameState& game) {
+    
     gameLogic.resetBoard();
-.
+
     for (const Move& move : game.moveHistory) {
+        
         gameLogic.makeMove(move.row, move.col);
     }
 
     switchToGameView();
-    updateBoard(); 
+
+    updateBoard();
 
     statusLabel->setText("Game Replay: " + QString::fromStdString(game.timestamp));
     for (int i = 0; i < 3; i++) {
