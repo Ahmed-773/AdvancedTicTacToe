@@ -16,11 +16,6 @@
 #include <QStandardPaths>
 #include <QDir>
 #include<string>
-// --- ALL NECESSARY INCLUDES FOR MEMBER VARIABLES ---
-#include "user_auth.h"
-#include "game_logic.h"
-#include "ai_engine.h"
-#include "game_history.h"
 
 // Forward declarations for Qt classes to speed up compilation
 class QStackedWidget;
@@ -30,6 +25,13 @@ class QPushButton;
 class QTableWidget;
 class QComboBox;
 class QRadioButton;
+
+// Include all necessary headers for our own classes
+#include "user_auth.h"
+#include "game_logic.h"
+#include "ai_engine.h"
+#include "database_manager.h"
+#include "game_history.h"
 
 class GUIInterface : public QMainWindow {
     Q_OBJECT
@@ -64,7 +66,7 @@ private:
     GameHistory gameHistory;
     DatabaseManager dbManager;
 
-    // UI Structure
+    // --- UI Structure ---
     QStackedWidget *mainStack;
 
     // --- Widgets for Each Screen ---
@@ -78,15 +80,17 @@ private:
     QRadioButton *pvpModeRadio;
     QRadioButton *aiModeRadio;
     QComboBox *difficultyCombo;
-    QLabel* playerXScoreLabel; // NEW: Score display for Player X
-    QLabel* playerOScoreLabel; // NEW: Score display for Player O / AI
+    QLabel* playerXScoreLabel;
+    QLabel* playerOScoreLabel;
 
     QWidget *historyWidget;
     QTableWidget *gameHistoryTable;
+    QPushButton *backToGameButton;
 
-    // Replay state variables
+    // --- Replay state variables ---
     std::vector<Move> replayHistory;
     int replayMoveIndex;
+    QWidget* replayControlsWidget; // A widget to hold the replay buttons
     QPushButton* replayNextButton;
     QPushButton* replayPrevButton;
     QPushButton* replayStartButton;
@@ -95,6 +99,9 @@ private:
     // --- Private Helper Methods ---
     void applyStylesheet();
     void setupUI();
+    void setupAuthentication();
+    void setupGameBoard();
+    void setupHistoryView();
     void updateBoard(bool isReplay = false);
     void updateScoreDisplay();
     void handleGameOver(GameResult result);
@@ -108,3 +115,4 @@ private:
 };
 
 #endif // GUI_INTERFACE_H
+
