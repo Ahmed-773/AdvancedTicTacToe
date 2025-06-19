@@ -365,16 +365,20 @@ void GUIInterface::onRegisterButtonClicked() {
         return;
     }
 
-    // Create a new UserAuth object for registration to avoid conflicts with logged-in state
-    UserAuth tempAuth;
-    tempAuth.setUsers(userAuth.getUsers()); // Use existing user data
+    // This is the simplified and correct logic.
+    // We call registerUser directly on our main userAuth object.
+    if (userAuth.registerUser(username, password)) {
+        // If registration is successful, the userAuth object now holds the new user's
+        // data. We can now save this new user to our database file.
+        dbManager.saveUser(*userAuth.getCurrentUser());
 
-    if (tempAuth.registerUser(username, password)) {
-        dbManager.saveUser(*tempAuth.getCurrentUser());
-        userAuth.setUsers(tempAuth.getUsers()); // Update main auth object
         QMessageBox::information(this, "Success", "Registration successful! You can now log in.");
+        
+        // After registration, the user is auto-logged in by the registerUser function,
+        // so we can switch to the login view for them to proceed.
         switchToLoginView();
     } else {
+        // If registerUser returns false, it means the username was already taken.
         QMessageBox::warning(this, "Registration Failed", "This username is already taken.");
     }
 }
