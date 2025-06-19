@@ -44,12 +44,6 @@ std::vector<GameState> DatabaseManager::loadGameHistory() {
     return deserializeGames(data);
 }
 
-bool DatabaseManager::saveGame(const GameState& game) {
-    auto games = loadGameHistory();
-    games.push_back(game);
-    return saveGameHistory(games);
-}
-
 //part 3
 bool DatabaseManager::writeToFile(const std::string& filename, const std::string& data) {
     std::ofstream file(filename, std::ios::binary);

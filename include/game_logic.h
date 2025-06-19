@@ -13,7 +13,7 @@ struct Move {
     int row;
     int col;
 
-    Move(int r, int c) : row(r), col(c) {}
+    Move(int r = -1, int c = -1) : row(r), col(c) {}
 };
 
 struct GameState {
@@ -36,16 +36,20 @@ public:
     bool makeMove(int row, int col);
     bool isValidMove(int row, int col) const;
     GameResult checkGameResult() const;
-
-    // This function is now public for testing purposes.
     bool isBoardFull() const;
+
+    // NEW: This function will return the coordinates of the 3 winning cells.
+    std::vector<Move> findWinningCombination() const;
 
     Player getCurrentPlayer() const;
     Player getCell(int row, int col) const;
     const std::vector<Move>& getMoveHistory() const;
     std::vector<Move> getAvailableMoves() const;
     const std::array<std::array<Player, 3>, 3>& getBoard() const;
-    
+
+    // Now public so the replay system can use it easily.
+    void undoLastMove();
+
 private:
     std::array<std::array<Player, 3>, 3> board;
     Player currentPlayer;
@@ -53,7 +57,5 @@ private:
 
     bool checkWin(Player player) const;
     void recordMove(int row, int col);
-    void undoLastMove();
 };
-
 #endif // GAME_LOGIC_H

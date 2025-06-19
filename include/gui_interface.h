@@ -22,86 +22,89 @@
 #include "ai_engine.h"
 #include "game_history.h"
 
+// Forward declarations for Qt classes to speed up compilation
+class QStackedWidget;
+class QLineEdit;
+class QLabel;
+class QPushButton;
+class QTableWidget;
+class QComboBox;
+class QRadioButton;
+
 class GUIInterface : public QMainWindow {
     Q_OBJECT
-    
+
 public:
-    explicit GUIInterface(const std::string& dbPath,QWidget *parent = nullptr);
+    explicit GUIInterface(const std::string& dbPath, QWidget *parent = nullptr);
     ~GUIInterface();
-    
+
 private slots:
     // Authentication
     void onLoginButtonClicked();
     void onRegisterButtonClicked();
     void onLogoutButtonClicked();
-    
+
     // Game control
     void onCellClicked();
     void onNewGameButtonClicked();
-    void onGameModeChanged();
-    void onDifficultyChanged(int difficulty);
-    
-    // Game history
+
+    // Game history and Replay
     void onViewHistoryClicked();
     void onGameHistoryItemClicked(int row, int column);
     void onBackToGameClicked();
-    
+    void onReplayNextClicked();
+    void onReplayPrevClicked();
+    void onReplayStartClicked();
+
 private:
-    // Core components
+    // Core backend components
     GameLogic gameLogic;
     AIEngine aiEngine;
     UserAuth userAuth;
     GameHistory gameHistory;
-
-
-
     DatabaseManager dbManager;
-    
-    // GUI widgets
+
+    // UI Structure
     QStackedWidget *mainStack;
-    
-    // Authentication widgets
+
+    // --- Widgets for Each Screen ---
     QWidget *loginWidget;
     QLineEdit *usernameInput;
     QLineEdit *passwordInput;
-    QPushButton *loginButton;
-    QPushButton *registerButton;
-    
-    // Game widgets
+
     QWidget *gameWidget;
-    QGridLayout *boardLayout;
     QPushButton *boardButtons[3][3];
     QLabel *statusLabel;
-    QPushButton *newGameButton;
-    QPushButton *viewHistoryButton;
-    QPushButton *logoutButton;
     QRadioButton *pvpModeRadio;
     QRadioButton *aiModeRadio;
     QComboBox *difficultyCombo;
-    
-    // History widgets
+    QLabel* playerXScoreLabel; // NEW: Score display for Player X
+    QLabel* playerOScoreLabel; // NEW: Score display for Player O / AI
+
     QWidget *historyWidget;
     QTableWidget *gameHistoryTable;
-    QPushButton *backToGameButton;
-    
-    // Private helper methods
+
+    // Replay state variables
+    std::vector<Move> replayHistory;
+    int replayMoveIndex;
+    QPushButton* replayNextButton;
+    QPushButton* replayPrevButton;
+    QPushButton* replayStartButton;
+
+
+    // --- Private Helper Methods ---
     void applyStylesheet();
     void setupUI();
-    void setupAuthentication();
-    void setupGameBoard();
-    void setupHistoryView();
-    
-    void updateBoard();
+    void updateBoard(bool isReplay = false);
+    void updateScoreDisplay();
     void handleGameOver(GameResult result);
     void switchToLoginView();
     void switchToGameView();
     void switchToHistoryView();
-    
-    bool isAIMode() const;
+    void setupReplayControls(bool show);
     void makeAIMove();
-    
     void loadUserGames();
-    void displayGame(const GameState& game);
+    void displayGameForReplay(const GameState& game);
 };
 
 #endif // GUI_INTERFACE_H

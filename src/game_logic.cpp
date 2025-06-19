@@ -6,13 +6,12 @@ GameLogic::GameLogic() {
 }
 
 void GameLogic::resetBoard() {
-    // Initialize empty board
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             board[i][j] = Player::NONE;
         }
     }
-    currentPlayer = Player::X;  // X always starts
+    currentPlayer = Player::X;
     moveHistory.clear();
 }
 
@@ -20,70 +19,64 @@ bool GameLogic::makeMove(int row, int col) {
     if (!isValidMove(row, col)) {
         return false;
     }
-
     board[row][col] = currentPlayer;
     recordMove(row, col);
-
-    // Switch players
     currentPlayer = (currentPlayer == Player::X) ? Player::O : Player::X;
     return true;
 }
 
 bool GameLogic::isValidMove(int row, int col) const {
-    // Check if within bounds
     if (row < 0 || row >= 3 || col < 0 || col >= 3) {
         return false;
     }
-
-    // Check if cell is empty
     return board[row][col] == Player::NONE;
 }
 
 GameResult GameLogic::checkGameResult() const {
-    // Check if X wins
-    if (checkWin(Player::X)) {
-        return GameResult::X_WINS;
-    }
-
-    // Check if O wins
-    if (checkWin(Player::O)) {
-        return GameResult::O_WINS;
-    }
-
-    // Check for draw
-    if (isBoardFull()) {
-        return GameResult::DRAW;
-    }
-
-    // Game still in progress
+    if (checkWin(Player::X)) return GameResult::X_WINS;
+    if (checkWin(Player::O)) return GameResult::O_WINS;
+    if (isBoardFull()) return GameResult::DRAW;
     return GameResult::IN_PROGRESS;
 }
 
 bool GameLogic::checkWin(Player player) const {
+    // Check rows and columns
+    for (int i = 0; i < 3; i++) {
+        if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) ||
+            (board[0][i] == player && board[1][i] == player && board[2][i] == player)) {
+            return true;
+        }
+    }
+    // Check diagonals
+    if ((board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
+        (board[0][2] == player && board[1][1] == player && board[2][0] == player)) {
+        return true;
+    }
+    return false;
+}
+
+// NEWLY IMPLEMENTED: This function finds which 3 cells made the win.
+std::vector<Move> GameLogic::findWinningCombination() const {
     // Check rows
     for (int i = 0; i < 3; i++) {
-        if (board[i][0] == player && board[i][1] == player && board[i][2] == player) {
-            return true;
+        if (board[i][0] != Player::NONE && board[i][0] == board[i][1] && board[i][1] == board[i][2]) {
+            return {{i, 0}, {i, 1}, {i, 2}};
         }
     }
-
     // Check columns
     for (int i = 0; i < 3; i++) {
-        if (board[0][i] == player && board[1][i] == player && board[2][i] == player) {
-            return true;
+        if (board[0][i] != Player::NONE && board[0][i] == board[1][i] && board[1][i] == board[2][i]) {
+            return {{0, i}, {1, i}, {2, i}};
         }
     }
-
     // Check diagonals
-    if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
-        return true;
+    if (board[0][0] != Player::NONE && board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
+        return {{0, 0}, {1, 1}, {2, 2}};
     }
-
-    if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
-        return true;
+    if (board[0][2] != Player::NONE && board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
+        return {{0, 2}, {1, 1}, {2, 0}};
     }
-
-    return false;
+    return {}; // Return empty vector if no win
 }
 
 bool GameLogic::isBoardFull() const {
@@ -102,7 +95,10 @@ Player GameLogic::getCurrentPlayer() const {
 }
 
 Player GameLogic::getCell(int row, int col) const {
-    return board[row][col];
+    if (row >= 0 && row < 3 && col >= 0 && col < 3) {
+        return board[row][col];
+    }
+    return Player::NONE;
 }
 
 const std::array<std::array<Player, 3>, 3>& GameLogic::getBoard() const {
@@ -134,6 +130,7 @@ void GameLogic::undoLastMove() {
         Move lastMove = moveHistory.back();
         board[lastMove.row][lastMove.col] = Player::NONE;
         moveHistory.pop_back();
+        // Switch player back
         currentPlayer = (currentPlayer == Player::X) ? Player::O : Player::X;
     }
 }

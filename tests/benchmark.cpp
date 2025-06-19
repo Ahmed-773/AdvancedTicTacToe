@@ -2,8 +2,8 @@
 ================================================================================
 File: tests/benchmark.cpp
 Purpose: A dedicated command-line executable for performance benchmarking.
-         This version fixes the C2275 error by declaring all variables at the
-         top of the function block, complying with older C++ standard rules.
+         This corrected version measures time in microseconds to get a more
+         precise and meaningful result for a very fast algorithm.
 ================================================================================
 */
 #include "ai_engine.h"
@@ -13,16 +13,17 @@ Purpose: A dedicated command-line executable for performance benchmarking.
 
 int main() {
     // --- Variable Declarations ---
-    // Declare all variables at the top of the block to fix C2275 error.
     AIEngine ai_engine;
     GameLogic game_logic;
     std::chrono::high_resolution_clock::time_point start_time;
     std::chrono::high_resolution_clock::time_point end_time;
-    std::chrono::milliseconds duration;
+    
+    // CHANGE #1: We will now store the duration in microseconds.
+    std::chrono::microseconds duration;
 
     // --- Execution ---
-    // Print a header for our CSV output.
-    std::cout << "TestName,Duration(ms)" << std::endl;
+    // CHANGE #2: Update the header to reflect the new unit (us for microseconds).
+    std::cout << "TestName,Duration(us)" << std::endl;
 
     // --- Benchmark Scenario 1: Early-Game Move ---
     game_logic.resetBoard();
@@ -31,7 +32,9 @@ int main() {
     start_time = std::chrono::high_resolution_clock::now();
     ai_engine.getBestMove(game_logic);
     end_time = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    
+    // CHANGE #3: Cast the result to microseconds instead of milliseconds.
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
     std::cout << "Early-Game-Scenario," << duration.count() << std::endl;
 
 
@@ -44,7 +47,9 @@ int main() {
     start_time = std::chrono::high_resolution_clock::now();
     ai_engine.getBestMove(game_logic);
     end_time = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    
+    // Also cast this result to microseconds.
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
     std::cout << "Mid-Game-Blocking-Scenario," << duration.count() << std::endl;
 
     return 0;

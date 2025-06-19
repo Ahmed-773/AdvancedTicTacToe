@@ -18,17 +18,17 @@ public:
     // User data management
     bool saveUsers(const std::unordered_map<std::string, UserProfile>& users);
     std::unordered_map<std::string, UserProfile> loadUsers();
+    bool saveUser(const UserProfile& user);
 
     // Game history management
     bool saveGameHistory(const std::vector<GameState>& games);
     std::vector<GameState> loadGameHistory();
 
-    // Individual record management
-    bool saveUser(const UserProfile& user);
-    bool saveGame(const GameState& game);
+    // The single saveGame function below has been removed to simplify the data flow
+    // and fix the bug. The GUI will now manage saving via saveGameHistory.
 
 private:
-    std::string db_file_path_; // to store the full file path to the database file on the computer's disk
+    std::string db_file_path_;
 
     // File I/O helpers
     bool writeToFile(const std::string& filename, const std::string& data);
