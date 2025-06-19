@@ -139,35 +139,57 @@ std::vector<GameState> DatabaseManager::deserializeGames(const std::string& data
     std::vector<GameState> games;
     std::stringstream ss(data);
     std::string line;
+
     while (std::getline(ss, line)) {
-        if (line.empty()) continue;
+        if (line.empty()) {
+            continue; 
+        }
+
         std::stringstream lineStream(line);
         std::string field;
         GameState game;
-        
-        if (!std::getline(lineStream, field, '|')) continue;
-        game.gameId = field;
-        if (!std::getline(lineStream, field, '|')) continue;
-        game.player1Id = field;
-        if (!std::getline(lineStream, field, '|')) continue;
-        game.player2Id = field;
-        if (!std::getline(lineStream, field, '|')) continue;
-        game.isAIOpponent = (field == "1");
-        if (!std::getline(lineStream, field, '|')) continue;
-        game.result = static_cast<GameResult>(std::stoi(field));
-        if (!std::getline(lineStream, field, '|')) continue;
-        game.timestamp = field;
-        
-        if (!std::getline(lineStream, field)) continue;
-        std::stringstream movesStream(field);
-        std::string moveStr;
-        while (std::getline(movesStream, moveStr, ';')) {
-            std::stringstream moveStream(moveStr);
-            std::string rowStr, colStr;
-            if (!std::getline(moveStream, rowStr, ',')) continue;
-            if (!std::getline(moveStream, colStr)) continue;
-            game.moveHistory.emplace_back(std::stoi(rowStr), std::stoi(colStr));
+
+
+        try {
+
+            if (!std::getline(lineStream, field, '|')) continue;
+            game.gameId = field;
+
+            if (!std::getline(lineStream, field, '|')) continue;
+            game.player1Id = field;
+
+            if (!std::getline(lineStream, field, '|')) continue;
+            game.player2Id = field;
+
+            if (!std::getline(lineStream, field, '|')) continue;
+            game.isAIOpponent = (field == "1");
+
+            if (!std::getline(lineStream, field, '|')) continue;
+            game.result = static_cast<GameResult>(std::stoi(field));
+
+            if (!std::getline(lineStream, field, '|')) continue;
+            game.timestamp = field;
+
+            if (std::getline(lineStream, field)) {
+                std::stringstream movesStream(field);
+                std::string movePair;
+
+                while (std::getline(movesStream, movePair, ';')) {
+                    if (movePair.empty()) continue; 
+                    size_t commaPos = movePair.find(',');
+                    if (commaPos != std::string::npos) {
+                        std::string rowStr = movePair.substr(0, commaPos);
+                        std::string colStr = movePair.substr(commaPos + 1);
+                        
+                        game.moveHistory.emplace_back(std::stoi(rowStr), std::stoi(colStr));
+                    }
+                }
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Failed to parse game history line: " << line << " | Error: " << e.what() << std::endl;
+            continue;
         }
+
         games.push_back(game);
     }
     return games;
