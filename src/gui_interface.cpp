@@ -443,6 +443,11 @@ void GUIInterface::setupReplayControls() {
     replayControlsFrame->setVisible(false);
 }
 
+void GUIInterface::setupReplayControls(bool visible) {
+    // replayControlsFrame is built in the parameterless version,
+    // so just adjust its visibility here:
+    replayControlsFrame->setVisible(visible);
+}
 
 // --- THEME & STYLING HELPERS ---
 
@@ -891,6 +896,12 @@ void GUIInterface::animateCellPlacement(int row, int col, Player player) {
     anim->setEndValue(1.0);
     anim->setEasingCurve(QEasingCurve::InOutQuad);
     anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void GUIInterface::animateGameOver(GameResult result) {
+    // You can add fancy animations here;
+    // for now we’ll just flash the board or leave it empty.
+    Q_UNUSED(result);
 }
 
 void GUIInterface::addGlowEffect(QWidget* widget, const QColor& color) {
