@@ -33,47 +33,10 @@
 #include <QDir>
 #include <string>
 
-// Forward declarations to avoid circular dependencies
-class DatabaseManager;
-class UserAuth;
-class GameLogic;
-class AIEngine;
-class GameHistory;
-
-// Define enums and structs that are used in the interface
-enum class Player { NONE, X, O };
-enum class GameResult { IN_PROGRESS, X_WINS, O_WINS, DRAW };
-
-struct Move {
-    int row;
-    int col;
-    Move(int r = -1, int c = -1) : row(r), col(c) {}
-};
-
-struct GameState {
-    std::string gameId;
-    std::string userId;
-    std::string opponentId;
-    bool isAIOpponent;
-    std::vector<Move> moveHistory;
-    GameResult result;
-    std::string timestamp;
-    
-    GameState() : isAIOpponent(false), result(GameResult::IN_PROGRESS) {}
-};
-
-struct UserProfile {
-    std::string userId;
-    std::string username;
-    std::string passwordHash;
-    int gamesPlayed;
-    int gamesWon;
-    int gamesLost;
-    int gamesTied;
-    std::string createdAt;
-    
-    UserProfile() : gamesPlayed(0), gamesWon(0), gamesLost(0), gamesTied(0) {}
-};
+#include "user_auth.h"
+#include "game_logic.h"
+#include "ai_engine.h"
+#include "game_history.h"
 
 class GUIInterface : public QMainWindow {
     Q_OBJECT
@@ -105,12 +68,6 @@ private slots:
     void onGameTimerUpdate();
 
 private:
-    // Forward declared classes - will be included in cpp file
-    std::unique_ptr<GameLogic> gameLogic;
-    std::unique_ptr<AIEngine> aiEngine;
-    std::unique_ptr<UserAuth> userAuth;
-    std::unique_ptr<GameHistory> gameHistory;
-    std::unique_ptr<DatabaseManager> dbManager;
     
     enum Theme { DARK, LIGHT, NEON };
     Theme currentTheme;
