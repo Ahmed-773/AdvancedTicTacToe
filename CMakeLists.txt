@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required packages, including Qt Test
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui Sql Test Multimedia)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui Sql Test)
 find_package(OpenSSL REQUIRED)
 
 # --- Main Application Executable ---
@@ -28,7 +28,7 @@ add_executable(the_final_game
 )
 
 target_include_directories(the_final_game PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(the_final_game PRIVATE Qt6::Widgets Qt6::Sql Qt6::Multimedia OpenSSL::SSL)
+target_link_libraries(the_final_game PRIVATE Qt6::Widgets Qt6::Sql OpenSSL::SSL)
 
 # --- Test Suite Executable ---
 add_executable(run_tests
