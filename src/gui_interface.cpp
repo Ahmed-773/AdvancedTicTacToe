@@ -15,6 +15,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QStandardItemModel>
+#include <QIcon>
+#include <QTimer>
 
 GUIInterface::GUIInterface(const std::string& dbPath, QWidget *parent)
     : QMainWindow(parent), 

@@ -1,4 +1,4 @@
-// File: gui_interface.h - Final Version (Sound Removed)
+// File: gui_interface.h - Final and Correct Version
 #ifndef GUI_INTERFACE_H
 #define GUI_INTERFACE_H
 
@@ -47,14 +47,19 @@ public:
     ~GUIInterface();
 
 private slots:
+    // Authentication
     void onLoginButtonClicked();
     void onRegisterButtonClicked();
     void onLogoutButtonClicked();
     void onGuestPlayClicked();
+
+    // Game control
     void onCellClicked();
     void onNewGameButtonClicked();
     void onUndoMoveClicked();
     void onHintClicked();
+
+    // Game modes and settings
     void onGameModeChanged();
     void onThemeChanged(int id);
     void onAnimationSpeedChanged(int value);
@@ -62,10 +67,14 @@ private slots:
     void onViewStatsClicked();
     void onGameHistoryItemClicked(int row, int column);
     void onBackToGameClicked();
+
+    // Replay controls
     void onReplayNextClicked();
     void onReplayPrevClicked();
     void onReplayStartClicked();
     void onReplayAutoPlay();
+
+    // Timers
     void onGameTimerUpdate();
 
 private:
@@ -92,12 +101,13 @@ private:
     // UI Structure
     QStackedWidget *mainStack;
     QWidget *loginWidget, *gameWidget, *historyWidget, *statsWidget, *settingsWidget;
-    QFrame *navigationFrame, *loginFrame, *gameFrame, *boardFrame, *scoreFrame, *controlsFrame, *historyDetailsFrame, *statsFrame;
+    QFrame *navigationFrame, *loginFrame, *welcomeFrame, *boardFrame, *scoreFrame, *controlsFrame, *historyHeader, *tableFrame, *historyDetailsFrame, *statsHeader, *statsFrame, *settingsHeader, *settingsContentFrame;
     QLineEdit *usernameInput, *passwordInput;
     QPushButton *boardButtons[3][3];
     QLabel *statusLabel, *timerLabel, *loginStatusLabel, *playerXScoreLabel, *playerOScoreLabel, *streakLabel, *winRateLabel, *totalGamesLabel, *winRateStatsLabel, *averageGameTimeLabel, *longestStreakLabel, *favoriteOpponentLabel, *replayPositionLabel;
     QProgressBar *aiThinkingBar, *loginProgressBar;
     QTabWidget *gameModeTab, *settingsTab;
+    QWidget *pvpModeWidget, *aiModeWidget, *appearanceTab, *gameplayTab;
     QComboBox *difficultyCombo;
     QSlider *aiSpeedSlider, *animationSpeedSlider, *replaySpeedSlider;
     QPushButton *loginButton, *registerButton, *guestButton, *newGameButton, *undoButton, *hintButton, *pauseButton, *backToGameButton, *exportHistoryButton;
@@ -105,7 +115,7 @@ private:
     QSplitter *historySplitter;
     QTextEdit *gameDetailsText;
     QButtonGroup *themeGroup;
-    QCheckBox *animationsEnabledCheck;
+    QCheckBox *animationsEnabledCheck, *showHintsCheck;
     QSpinBox *autoSaveSpinBox;
     QFrame *replayControlsFrame;
     QPushButton *replayStartButton, *replayPrevButton, *replayNextButton, *replayAutoButton;
@@ -114,19 +124,22 @@ private:
     std::vector<Move> replayHistory;
     int replayMoveIndex;
     bool replayAutoMode;
+    QScrollArea *statsScrollArea;
 
     // Private Helper Methods
     void setupUI();
     void setupNavigation();
     void setupAuthentication();
     void setupGameBoard();
+    void setupScoreDisplay(QVBoxLayout *layout);
+    void setupGameModeControls(QVBoxLayout *layout);
+    void setupGameControls(QVBoxLayout *layout);
     void setupHistoryView();
     void setupStatsView();
     void setupSettingsView();
     void setupReplayControls();
     
     void applyTheme(Theme theme);
-    void updateButtonStyles();
     void animateButton(QWidget* widget);
     void addDropShadow(QWidget* widget);
     
@@ -157,7 +170,6 @@ private:
     void applySettings();
     
     void animateCellPlacement(int row, int col, Player player);
-    void fadeInWidget(QWidget* widget);
     
     QString formatTime(int seconds);
     QString formatGameResult(GameResult result);
