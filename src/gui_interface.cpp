@@ -784,7 +784,7 @@ void GUIInterface::showHint() {
 
 void GUIInterface::updateBoard(bool isReplay) {
     if (!isReplay) {
-        statusLabel->setText(QString::fromStdString(getPlayerName(gameLogic.getCurrentPlayer())) + "'s Turn");
+        statusLabel->setText(QString::fromStdString(getPlayerName(gameLogic.getCurrentPlayer())) + QStringLiteral("'s Turn"));
     }
 
     for (int i = 0; i < 3; i++) {
