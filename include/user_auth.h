@@ -43,6 +43,7 @@ public:
     // --- Data Hydration ---
     // Used by the persistence layer to load all user data from the database.
     void setUsers(const std::unordered_map<std::string, UserProfile>& usersMap);
+    const std::unordered_map<std::string, UserProfile>& getUsers() const;
 
 private:
     // --- Private Members ---

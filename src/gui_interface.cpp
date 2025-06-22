@@ -18,12 +18,14 @@
 #include <QIcon>
 #include <QTimer>
 
+static const int TURN_TIME_LIMIT_S = 15;
+
 GUIInterface::GUIInterface(const std::string& dbPath, QWidget *parent)
-    : QMainWindow(parent), 
-      dbManager(dbPath), 
+    : QMainWindow(parent),
+      dbManager(dbPath),
       currentTheme(DARK),
       animationsEnabled(true),
-      animationSpeed(500),
+      animationSpeed(300),
       isGameInProgress(false),
       isReplayMode(false),
       gameTimeSeconds(0),
@@ -33,10 +35,13 @@ GUIInterface::GUIInterface(const std::string& dbPath, QWidget *parent)
     gameTimer = new QTimer(this);
     aiThinkTimer = new QTimer(this);
     replayAutoTimer = new QTimer(this);
+
     connect(gameTimer, &QTimer::timeout, this, &GUIInterface::onGameTimerUpdate);
     connect(replayAutoTimer, &QTimer::timeout, this, &GUIInterface::onReplayNextClicked);
+    
     setupUI();
     loadSettings();
+    applyTheme(currentTheme);
     try {
         auto loadedUsers = dbManager.loadUsers();
         userAuth.setUsers(loadedUsers);
@@ -44,63 +49,86 @@ GUIInterface::GUIInterface(const std::string& dbPath, QWidget *parent)
     } catch (const std::exception& e) {
         qWarning() << "Could not load initial data: " << e.what();
     }
+
     aiEngine.setDifficulty(3);
-    applyTheme(currentTheme);
     switchToLoginView();
 }
+
 GUIInterface::~GUIInterface() {
     saveSettings();
 }
+
+// --- SETUP FUNCTIONS ---
+
 void GUIInterface::setupUI() {
-    setWindowTitle("Advanced Tic Tac Toe - Enhanced Edition");
-    setMinimumSize(1000, 700);
-    resize(1200, 800); 
+    setWindowTitle("Advanced Tic Tac Toe - Pro Edition");
+    setMinimumSize(1100, 750);
+    resize(1200, 800);
+
     // Create main container
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
+
     QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
+
     // Setup navigation sidebar
     setupNavigation();
-        // Setup main content area
+
+    // Setup main content area
     mainStack = new QStackedWidget();
     mainStack->setObjectName("mainStack");
+
     setupAuthentication();
     setupGameBoard();
     setupHistoryView();
     setupStatsView();
     setupSettingsView();
+
     mainLayout->addWidget(navigationFrame);
     mainLayout->addWidget(mainStack, 1);
+
     updateNavigationButtons();
 }
+
 void GUIInterface::setupNavigation() {
     navigationFrame = new QFrame();
     navigationFrame->setObjectName("navigationFrame");
     navigationFrame->setFixedWidth(200);
     navigationFrame->setFrameStyle(QFrame::StyledPanel);
+
     QVBoxLayout *navLayout = new QVBoxLayout(navigationFrame);
     navLayout->setContentsMargins(10, 20, 10, 20);
     navLayout->setSpacing(10);
+
     // App title
     QLabel *titleLabel = new QLabel("TicTacToe\nPro");
     titleLabel->setObjectName("appTitle");
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setWordWrap(true);
+
     // Navigation buttons
     gameNavButton = new QPushButton("🎮 Game");
     historyNavButton = new QPushButton("📈 History");
     statsNavButton = new QPushButton("📊 Statistics");
     settingsNavButton = new QPushButton("⚙️ Settings");
+
+        QButtonGroup* navGroup = new QButtonGroup(this);
+    navGroup->setExclusive(true);
+    QPushButton* navButtons[] = {gameNavButton, historyNavButton, statsNavButton, settingsNavButton};
     for (auto* button : {gameNavButton, historyNavButton, statsNavButton, settingsNavButton}) {
         button->setObjectName("navButton");
         button->setCheckable(true);
+        navGroup->addButton(button);
+        navLayout->addWidget(button);
     }
+
     connect(gameNavButton, &QPushButton::clicked, this, &GUIInterface::switchToGameView);
     connect(historyNavButton, &QPushButton::clicked, this, &GUIInterface::switchToHistoryView);
     connect(statsNavButton, &QPushButton::clicked, this, &GUIInterface::switchToStatsView);
     connect(settingsNavButton, &QPushButton::clicked, this, &GUIInterface::switchToSettingsView);  
+    
     navLayout->addWidget(titleLabel);
     navLayout->addSpacing(30);
     navLayout->addWidget(gameNavButton);
@@ -108,12 +136,14 @@ void GUIInterface::setupNavigation() {
     navLayout->addWidget(statsNavButton);
     navLayout->addWidget(settingsNavButton);
     navLayout->addStretch();
+
     // Logout button at bottom
     QPushButton *logoutButton = new QPushButton("🚪 Logout");
     logoutButton->setObjectName("logoutButton");
     connect(logoutButton, &QPushButton::clicked, this, &GUIInterface::onLogoutButtonClicked);
-    navLayout->addWidget(logoutButton);
+    navLayout->addWidget(logoutButton, 0, Qt::AlignBottom);
 }
+
 void GUIInterface::setupAuthentication() {
     loginWidget = new QWidget();
     loginWidget->setObjectName("loginWidget");
@@ -202,82 +232,61 @@ void GUIInterface::setupAuthentication() {
     addDropShadow(welcomeFrame);
     mainStack->addWidget(loginWidget);
 }
+
 void GUIInterface::setupGameBoard() {
-    gameWidget = new QWidget();
-    gameWidget->setObjectName("gameWidget"); 
+     gameWidget = new QWidget();
     QHBoxLayout *gameMainLayout = new QHBoxLayout(gameWidget);
     gameMainLayout->setContentsMargins(20, 20, 20, 20);
     gameMainLayout->setSpacing(20);
-    // Left panel - Game controls and info
+
     QFrame *leftPanel = new QFrame();
-    leftPanel->setObjectName("gamePanel");
     leftPanel->setFixedWidth(300);
-    leftPanel->setFrameStyle(QFrame::StyledPanel);    
     QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
-    leftLayout->setContentsMargins(20, 20, 20, 20);
     leftLayout->setSpacing(15);
-    // Game status
-    statusLabel = new QLabel("Welcome! Start a new game");
-    statusLabel->setObjectName("gameStatus");
-    statusLabel->setAlignment(Qt::AlignCenter);
-    statusLabel->setWordWrap(true);
-    statusLabel->setMinimumHeight(60);   
-    // Timer
-    timerLabel = new QLabel("Time: 00:00");
-    timerLabel->setObjectName("timerLabel");
-    timerLabel->setAlignment(Qt::AlignCenter);   
-    // AI thinking indicator
-    aiThinkingBar = new QProgressBar();
-    aiThinkingBar->setObjectName("aiThinkingBar");
-    aiThinkingBar->setRange(0, 0);
-    aiThinkingBar->setVisible(false);
-    aiThinkingBar->setFormat("AI is thinking...");   
-    // Setup components
-    setupScoreDisplay(leftLayout);
-    setupGameModeControls(leftLayout);
-    setupGameControls(leftLayout);  
-    leftLayout->addWidget(statusLabel);
-    leftLayout->addWidget(timerLabel);
-    leftLayout->addWidget(aiThinkingBar);
-    leftLayout->addStretch();  
-    // Center panel - Game board
+    
     QFrame *centerPanel = new QFrame();
-    centerPanel->setObjectName("boardPanel");
-    centerPanel->setFrameStyle(QFrame::StyledPanel);
     QVBoxLayout *centerLayout = new QVBoxLayout(centerPanel);
-    centerLayout->setContentsMargins(30, 30, 30, 30);
-    centerLayout->setAlignment(Qt::AlignCenter); 
-    // Board frame
+    centerLayout->setAlignment(Qt::AlignCenter);
+    
+    statusLabel = new QLabel("Welcome! Start a new game.");
+    statusLabel->setObjectName("statusLabel");
+    statusLabel->setAlignment(Qt::AlignCenter);
+    
+    timerLabel = new QLabel("Time: 00:00");
+    timerLabel->setAlignment(Qt::AlignCenter);
+
     boardFrame = new QFrame();
-    boardFrame->setObjectName("boardFrame");
     boardFrame->setFixedSize(450, 450);
-    boardFrame->setFrameStyle(QFrame::StyledPanel);  
     QGridLayout *boardLayout = new QGridLayout(boardFrame);
-    boardLayout->setSpacing(5);
-    boardLayout->setContentsMargins(10, 10, 10, 10);
-    // Create board buttons
+    boardLayout->setSpacing(10);
+    
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             boardButtons[i][j] = new QPushButton("");
             boardButtons[i][j]->setObjectName("boardButton");
-            boardButtons[i][j]->setMinimumSize(140, 140);
-            boardButtons[i][j]->setMaximumSize(140, 140);
+            boardButtons[i][j]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
             boardButtons[i][j]->setProperty("row", i);
             boardButtons[i][j]->setProperty("col", j);
-            boardButtons[i][j]->setFont(QFont("Arial", 48, QFont::Bold));    
             connect(boardButtons[i][j], &QPushButton::clicked, this, &GUIInterface::onCellClicked);
             boardLayout->addWidget(boardButtons[i][j], i, j);
         }
-    } 
-    centerLayout->addWidget(boardFrame);
-    // Replay controls
+    }
+    
     setupReplayControls();
+    
+    centerLayout->addWidget(statusLabel);
+    centerLayout->addWidget(timerLabel);
+    centerLayout->addWidget(boardFrame, 1);
     centerLayout->addWidget(replayControlsFrame);
+
+    setupScoreDisplay(leftLayout);
+    setupGameModeControls(leftLayout);
+    setupGameControls(leftLayout);
+    leftLayout->addStretch();
+
     gameMainLayout->addWidget(leftPanel);
     gameMainLayout->addWidget(centerPanel, 1);
-    addDropShadow(leftPanel);
-    addDropShadow(centerPanel);
-    addDropShadow(boardFrame);
+    
     mainStack->addWidget(gameWidget);
 }
 
