@@ -68,7 +68,12 @@ private slots:
     void onGameTimerUpdate();
 
 private:
-    
+    DatabaseManager dbManager;
+    UserAuth userAuth;
+    GameLogic gameLogic;
+    AIEngine aiEngine;
+    GameHistory gameHistory;    
+
     enum Theme { DARK, LIGHT, NEON };
     Theme currentTheme;
     bool animationsEnabled;

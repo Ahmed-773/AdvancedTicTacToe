@@ -1,3 +1,4 @@
+//---------------------------------------------------------------------------------------
 // gui_interface.cpp - Part 1 of 4: The Foundation (Setup and Styling)
 #include "gui_interface.h"
 
