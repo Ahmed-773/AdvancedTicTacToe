@@ -714,11 +714,9 @@ void GUIInterface::onGameTimerUpdate() {
     }
 }
 
-
 // gui_interface.cpp - Part 3 of 4: Core Helper and Game Logic Functions
 
 // --- HELPER METHOD IMPLEMENTATIONS (The "Workhorse" functions) ---
-
 void GUIInterface::handleGameOver(GameResult result) {
     isGameInProgress = false;
     gameTimer->stop();
@@ -895,14 +893,6 @@ void GUIInterface::animateCellPlacement(int row, int col, Player player) {
     anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-void GUIInterface::addDropShadow(QWidget* widget) {
-    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect(this);
-    shadow->setBlurRadius(15.0);
-    shadow->setOffset(0, 4);
-    shadow->setColor(QColor(0, 0, 0, 80));
-    widget->setGraphicsEffect(shadow);
-}
-
 void GUIInterface::addGlowEffect(QWidget* widget, const QColor& color) {
     QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect(this);
     glow->setColor(color);
@@ -911,21 +901,6 @@ void GUIInterface::addGlowEffect(QWidget* widget, const QColor& color) {
     widget->setGraphicsEffect(glow);
     widget->graphicsEffect()->setEnabled(false); // Disabled by default
     // In a real app, you would enable this on hover via event filters
-}
-
-void GUIInterface::animateButton(QWidget* widget) {
-    if (!animationsEnabled) return;
-    QPropertyAnimation *animation = new QPropertyAnimation(widget, "geometry");
-    animation->setDuration(animationSpeed);
-    QRect geom = widget->geometry();
-    animation->setKeyValueAt(0.0, geom);
-    animation->setKeyValueAt(0.1, QRect(geom.x() - 4, geom.y(), geom.width(), geom.height()));
-    animation->setKeyValueAt(0.3, QRect(geom.x() + 4, geom.y(), geom.width(), geom.height()));
-    animation->setKeyValueAt(0.5, QRect(geom.x() - 4, geom.y(), geom.width(), geom.height()));
-    animation->setKeyValueAt(0.7, QRect(geom.x() + 4, geom.y(), geom.width(), geom.height()));
-    animation->setKeyValueAt(0.9, QRect(geom.x() - 4, geom.y(), geom.width(), geom.height()));
-    animation->setKeyValueAt(1.0, geom);
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 // gui_interface.cpp - Part 4 of 4: Final Helpers and Utilities

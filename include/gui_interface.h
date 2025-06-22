@@ -33,6 +33,7 @@
 #include <QDir>
 #include <string>
 
+#include "database_manager.h"
 #include "user_auth.h"
 #include "game_logic.h"
 #include "ai_engine.h"
