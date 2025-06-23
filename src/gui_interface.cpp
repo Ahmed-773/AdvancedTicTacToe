@@ -1,5 +1,4 @@
-// gui_interface.cpp (Corrected Version 2)
-// This version fixes specific member and type name errors.
+// gui_interface.cpp (Final Corrected Version)
 #include "gui_interface.h"
 
 // All necessary Qt includes
@@ -15,15 +14,12 @@
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QDebug>
-#include <QHeaderView>
+#include <QHeaderView> 
 #include <QTableWidgetItem>
+#include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
 
-// Define the time limit for each turn in seconds.
 static const int TURN_TIME_LIMIT_S = 15;
-
-// =====================================================================================
-// --- Constructor & Destructor
-// =====================================================================================
 
 GUIInterface::GUIInterface(const std::string& dbPath, QWidget *parent)
     : QMainWindow(parent),
@@ -55,7 +51,6 @@ GUIInterface::GUIInterface(const std::string& dbPath, QWidget *parent)
         qWarning() << "Could not load initial data from database: " << e.what();
     }
     
-    // Set the initial AI difficulty
     aiEngine.setDifficulty(difficultyCombo->currentIndex());
     switchToLoginView();
 }
@@ -64,9 +59,7 @@ GUIInterface::~GUIInterface() {
     saveSettings();
 }
 
-// =====================================================================================
-// --- UI Setup Functions
-// =====================================================================================
+// --- UI SETUP FUNCTIONS ---
 
 void GUIInterface::setupUI() {
     setWindowTitle("Advanced Tic Tac Toe - Pro Edition");
@@ -110,17 +103,16 @@ void GUIInterface::setupNavigation() {
     titleLabel->setObjectName("appTitle");
     titleLabel->setAlignment(Qt::AlignCenter);
     
-    gameNavButton = new QPushButton(QIcon(":/icons/game.png"), " Play Game");
-    historyNavButton = new QPushButton(QIcon(":/icons/history.png"), " Game History");
-    statsNavButton = new QPushButton(QIcon(":/icons/stats.png"), " Statistics");
-    settingsNavButton = new QPushButton(QIcon(":/icons/settings.png"), " Settings");
+    gameNavButton = new QPushButton( " Play Game");
+    historyNavButton = new QPushButton(" Game History");
+    statsNavButton = new QPushButton(" Statistics");
+    settingsNavButton = new QPushButton(" Settings");
     
     QButtonGroup* navGroup = new QButtonGroup(this);
     navGroup->setExclusive(true);
     
     QPushButton* navButtons[] = {gameNavButton, historyNavButton, statsNavButton, settingsNavButton};
     for(auto* button : navButtons) {
-        // SOLUTION: Use setProperty("class", ...) instead of setClassName
         button->setProperty("class", "navButton");
         button->setCheckable(true);
         button->setIconSize(QSize(24,24));
@@ -138,8 +130,8 @@ void GUIInterface::setupNavigation() {
     
     navLayout->addStretch();
     
-    QPushButton *logoutButton = new QPushButton(QIcon(":/icons/logout.png"), " Logout");
-    logoutButton->setProperty("class", "logoutButton"); // Use property for specific styling
+    QPushButton *logoutButton = new QPushButton(" Logout");
+    logoutButton->setProperty("class", "logoutButton");
     logoutButton->setIconSize(QSize(24,24));
     connect(logoutButton, &QPushButton::clicked, this, &GUIInterface::onLogoutButtonClicked);
     navLayout->addWidget(logoutButton);
@@ -309,7 +301,6 @@ void GUIInterface::setupGameModeControls(QVBoxLayout* layout) {
     
     layout->addWidget(gameModeTab);
     connect(gameModeTab, &QTabWidget::currentChanged, this, &GUIInterface::onGameModeChanged);
-    // SOLUTION: Connect the difficulty combo box to a slot that updates the AI engine
     connect(difficultyCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index){
         aiEngine.setDifficulty(index);
     });
@@ -381,7 +372,6 @@ void GUIInterface::setupHistoryView() {
 
     connect(backToGameButton, &QPushButton::clicked, this, &GUIInterface::onBackToGameClicked);
     connect(exportHistoryButton, &QPushButton::clicked, this, &GUIInterface::exportGameHistory);
-    // The connect call itself is correct, the error was in the slot's definition.
     connect(gameHistoryTable, &QTableWidget::itemDoubleClicked, this, &GUIInterface::onGameHistoryItemClicked);
     
     mainStack->addWidget(historyWidget);
@@ -495,21 +485,12 @@ void GUIInterface::setupReplayControls(bool visible) {
     }
 }
 
-// =====================================================================================
-// --- Stylesheet & Animations
-// =====================================================================================
-
 void GUIInterface::applyTheme(Theme theme) {
     currentTheme = theme;
-    // SOLUTION: Update the QSS to use property selectors like [class='...']
-    // instead of the non-standard .className selector.
     QString styleSheet = R"(
-        /* Global */
         QWidget { font-family: 'Segoe UI', sans-serif; }
         QFrame#navigationFrame { background-color: #2c3e50; }
         QStackedWidget#mainStack, QWidget#loginWidget { background-color: #34495e; }
-        
-        /* Labels */
         QLabel { color: #ecf0f1; font-size: 14px; }
         QLabel#appTitle { color: #ffffff; font-size: 24px; font-weight: bold; }
         QLabel#welcomeTitle, QLabel#loginTitle, QLabel#titleLabel { font-size: 32px; font-weight: bold; color: #ffffff; }
@@ -517,54 +498,23 @@ void GUIInterface::applyTheme(Theme theme) {
         QLabel#statusLabel { font-size: 22px; font-weight: bold; color: #f1c40f; padding: 10px; }
         QLabel#scoreLabel, QLabel#sectionTitle { font-weight: bold; color: #3498db; }
         QLabel#errorLabel { color: #e74c3c; font-weight: bold; }
-
-        /* Buttons */
-        QPushButton { 
-            background-color: #3498db; color: white; border: none; 
-            padding: 10px; border-radius: 5px; font-weight: bold; 
-        }
+        QPushButton { background-color: #3498db; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; }
         QPushButton:hover { background-color: #5dade2; }
         QPushButton:pressed { background-color: #2980b9; }
         QPushButton:disabled { background-color: #95a5a6; }
-        
-        QPushButton[class='navButton'] {
-            background-color: transparent; text-align: left; padding-left: 20px;
-            color: #bdc3c7; border-left: 3px solid transparent; border-radius: 0;
-        }
+        QPushButton[class='navButton'] { background-color: transparent; text-align: left; padding-left: 20px; color: #bdc3c7; border-left: 3px solid transparent; border-radius: 0; }
         QPushButton[class='navButton']:hover { background-color: #34495e; color: #ffffff; }
         QPushButton[class='navButton']:checked { background-color: #2c3e50; color: #ffffff; border-left: 3px solid #3498db; }
-        
         QPushButton[class='logoutButton'] { background-color: #c0392b; }
         QPushButton[class='logoutButton']:hover { background-color: #e74c3c; }
-
-        QPushButton[class='game-cell'] {
-            background-color: rgba(0, 0, 0, 0.2); font-size: 48px; font-weight: bold;
-        }
+        QPushButton[class='game-cell'] { background-color: rgba(0, 0, 0, 0.2); font-size: 48px; font-weight: bold; }
         QPushButton[class='game-cell']:hover { background-color: rgba(0, 0, 0, 0.4); }
-        
-        /* Input Widgets */
-        QLineEdit, QComboBox { 
-            padding: 8px; border: 1px solid #2c3e50; border-radius: 4px;
-            background-color: #566573; color: white;
-        }
+        QLineEdit, QComboBox { padding: 8px; border: 1px solid #2c3e50; border-radius: 4px; background-color: #566573; color: white; }
         QLineEdit:focus { border-color: #3498db; }
-        
-        /* Frames & Groups */
-        QFrame#loginFormContainer, QFrame[class='groupBox'], QGroupBox {
-            background-color: rgba(0,0,0,0.2);
-            border-radius: 15px;
-        }
+        QFrame#loginFormContainer, QFrame[class='groupBox'], QGroupBox { background-color: rgba(0,0,0,0.2); border-radius: 15px; }
         QFrame#welcomeFrame { background-color: transparent; }
-
-        /* Tables */
-        QTableWidget {
-            background-color: #566573; color: #ecf0f1; border: none;
-            gridline-color: #34495e; selection-background-color: #3498db;
-        }
-        QHeaderView::section {
-            background-color: #2c3e50; color: #ffffff; padding: 8px;
-            border: none; font-weight: bold;
-        }
+        QTableWidget { background-color: #566573; color: #ecf0f1; border: none; gridline-color: #34495e; selection-background-color: #3498db; }
+        QHeaderView::section { background-color: #2c3e50; color: #ffffff; padding: 8px; border: none; font-weight: bold; }
     )";
     
     if (theme == LIGHT) { /* Light theme QSS here */ }
@@ -587,11 +537,7 @@ void GUIInterface::updateButtonStyles() {
     }
 }
 
-// ... other functions (animateButton, setupReplayControls, etc.) remain the same
-
-// =====================================================================================
-// --- Slot Implementations
-// =====================================================================================
+// --- SLOT IMPLEMENTATIONS ---
 
 void GUIInterface::onLoginButtonClicked() {
     if (userAuth.loginUser(usernameInput->text().toStdString(), passwordInput->text().toStdString())) {
@@ -642,8 +588,8 @@ void GUIInterface::onCellClicked() {
 
     if (gameLogic.makeMove(row, col)) {
         Player movedPlayer = (gameLogic.getCurrentPlayer() == Player::X) ? Player::O : Player::X;
-        animateCellPlacement(row, col, movedPlayer);
         updateBoard();
+        animateCellPlacement(row, col, movedPlayer);
         
         GameResult result = gameLogic.checkGameResult();
         if (result != GameResult::IN_PROGRESS) {
@@ -692,8 +638,6 @@ void GUIInterface::onUndoMoveClicked() {
 
 void GUIInterface::onHintClicked() {
     if (!isGameInProgress || isReplayMode) return;
-    // SOLUTION: Use getBestMove (assuming it exists on aiEngine) instead of findBestMove
-    // and don't pass difficulty, as it's set via a setter now.
     Move hint = aiEngine.getBestMove(gameLogic);
     if(hint.row != -1){
         animateButton(boardButtons[hint.row][hint.col]);
@@ -712,9 +656,22 @@ void GUIInterface::onAnimationSpeedChanged(int value) {
     animationSpeed = value;
 }
 
-// =====================================================================================
-// --- Core Logic & Helpers
-// =====================================================================================
+void GUIInterface::onGameHistoryItemClicked(QTableWidgetItem *item) {
+    if (!item) return;
+
+    int row = item->row();
+    QVariant data = gameHistoryTable->item(row, 0)->data(Qt::UserRole);
+    if (data.isValid()) {
+        std::string gameId = data.toString().toStdString();
+        GameState game = gameHistory.getGameById(gameId);
+
+        if (!game.gameId.empty()) {
+            displayGameForReplay(game);
+        }
+    }
+}
+
+// --- CORE LOGIC & HELPERS ---
 
 void GUIInterface::handleGameOver(GameResult result) {
     isGameInProgress = false;
@@ -745,11 +702,10 @@ void GUIInterface::handleGameOver(GameResult result) {
 }
 
 void GUIInterface::makeAIMove() {
-    // SOLUTION: Call the corrected AI move function
     Move aiMove = aiEngine.getBestMove(gameLogic);
     if(gameLogic.makeMove(aiMove.row, aiMove.col)) {
-        animateCellPlacement(aiMove.row, aiMove.col, Player::O);
         updateBoard();
+        animateCellPlacement(aiMove.row, aiMove.col, Player::O);
         
         GameResult result = gameLogic.checkGameResult();
         if (result != GameResult::IN_PROGRESS) {
@@ -760,52 +716,150 @@ void GUIInterface::makeAIMove() {
     }
 }
 
-// ... The rest of the functions remain largely the same, stubs are for brevity ...
-void GUIInterface::onViewHistoryClicked() {}
-void GUIInterface::onViewStatsClicked() {}
-void GUIInterface::onGameHistoryItemClicked(QTableWidgetItem *item) {
-    if (!item) { // Always good practice to check for nullptr
+// --- UTILITY AND HELPER IMPLEMENTATIONS ---
+
+void GUIInterface::animateCellPlacement(int row, int col, Player player) {
+    if (!animationsEnabled) {
+        updateBoard();
         return;
     }
-
-    // Get the row from the item that the signal provides
-    int row = item->row();
     
-    // Now the rest of the logic can proceed as intended
-    // Use the item from column 0 in the given row to get the Game ID
-    QVariant data = gameHistoryTable->item(row, 0)->data(Qt::UserRole);
-    if (data.isValid()) {
-        std::string gameId = data.toString().toStdString();
-        GameState game = gameHistory.getGameById(gameId);
-
-        if (!game.gameId.empty()) {
-            displayGameForReplay(game);
+    QPushButton* button = boardButtons[row][col];
+    
+    QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(button);
+    button->setGraphicsEffect(effect);
+    
+    QPropertyAnimation* anim = new QPropertyAnimation(effect, "opacity");
+    anim->setDuration(animationSpeed);
+    anim->setStartValue(0.0);
+    anim->setEndValue(1.0);
+    anim->setEasingCurve(QEasingCurve::InOutQuad);
+    connect(anim, &QPropertyAnimation::finished, [=](){
+        if(button->graphicsEffect()) {
+             button->setGraphicsEffect(nullptr);
         }
+        delete effect;
+    });
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void GUIInterface::onGameTimerUpdate() { 
+    if(isGameInProgress) gameTimeSeconds++; 
+    updateTimer(); 
+}
+
+void GUIInterface::highlightWinningCells(const std::vector<Move>& cells) { 
+    for(const auto& move : cells) {
+        boardButtons[move.row][move.col]->setStyleSheet("background-color: #f1c40f;");
     }
 }
+
+void GUIInterface::resetBoardHighlights() { 
+    for(int r=0; r<3; ++r) {
+        for(int c=0; c<3; ++c) {
+            boardButtons[r][c]->setStyleSheet(""); 
+        }
+    }
+    updateButtonStyles(); 
+}
+
+void GUIInterface::updateBoard(bool isReplay) { 
+    resetBoardHighlights(); 
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            boardButtons[i][j]->setText(getPlayerName(gameLogic.getCell(i, j)));
+        }
+    }
+    updateButtonStyles(); 
+}
+
+void GUIInterface::updateScoreDisplay() { 
+    if(userAuth.isLoggedIn()) { 
+        const UserProfile* u = userAuth.getCurrentUser(); 
+        playerXScoreLabel->setText(QString("W: %1 L: %2 D: %3").arg(u->gamesWon).arg(u->gamesLost).arg(u->gamesTied)); 
+    } else {
+        playerXScoreLabel->setText("W: 0 L: 0 D: 0");
+    }
+}
+
+void GUIInterface::updateTimer() { 
+    timerLabel->setText(formatTime(gameTimeSeconds)); 
+}
+
+void GUIInterface::switchToLoginView() { 
+    mainStack->setCurrentWidget(loginWidget); 
+    navigationFrame->hide(); 
+}
+
+void GUIInterface::switchToGameView() { 
+    mainStack->setCurrentWidget(gameWidget); 
+    navigationFrame->show(); 
+    gameNavButton->setChecked(true); 
+}
+
+void GUIInterface::switchToHistoryView() { 
+    mainStack->setCurrentWidget(historyWidget); 
+    navigationFrame->show(); 
+    historyNavButton->setChecked(true); 
+}
+
+void GUIInterface::switchToStatsView() { 
+    mainStack->setCurrentWidget(statsWidget); 
+    navigationFrame->show(); 
+    statsNavButton->setChecked(true); 
+}
+
+void GUIInterface::switchToSettingsView() { 
+    mainStack->setCurrentWidget(settingsWidget); 
+    navigationFrame->show(); 
+    settingsNavButton->setChecked(true); 
+}
+
+QString GUIInterface::formatTime(int totalSeconds) { 
+    return QString("%1:%2").arg(totalSeconds / 60, 2, 10, QChar('0')).arg(totalSeconds % 60, 2, 10, QChar('0')); 
+}
+
+QString GUIInterface::formatGameResult(GameResult result) { 
+    if (result == GameResult::X_WINS) return "You Won!"; 
+    if (result == GameResult::O_WINS) return "Opponent Won"; 
+    if (result == GameResult::DRAW) return "It's a Draw"; 
+    return "In Progress"; 
+}
+
+QString GUIInterface::getPlayerName(Player player) { 
+    if (player == Player::X) return "X"; 
+    if (player == Player::O) return "O"; 
+    return ""; 
+}
+
+QColor GUIInterface::getPlayerColor(Player player) { 
+    if (player == Player::X) return QColor("#3498DB"); 
+    if (player == Player::O) return QColor("#E74C3C"); 
+    return Qt::white; 
+}
+
+void GUIInterface::showNotification(const QString& message, const QString& type) { 
+    QMessageBox msgBox(this); 
+    msgBox.setText(message); 
+    msgBox.setIcon(type == "error" ? QMessageBox::Critical : QMessageBox::Information); 
+    msgBox.setWindowTitle(type == "error" ? "Error" : "Notification"); 
+    msgBox.exec(); 
+}
+
+// --- STUBS FOR UNIMPLEMENTED FUNCTIONS ---
+void GUIInterface::onViewHistoryClicked() {}
+void GUIInterface::onViewStatsClicked() {}
 void GUIInterface::onBackToGameClicked() { switchToGameView(); }
 void GUIInterface::onReplayNextClicked() {}
 void GUIInterface::onReplayPrevClicked() {}
 void GUIInterface::onReplayStartClicked() {}
 void GUIInterface::onReplayAutoPlay() {}
-void GUIInterface::onGameTimerUpdate() { if(isGameInProgress) gameTimeSeconds++; updateTimer(); }
-void GUIInterface::showHint() {}
-void GUIInterface::highlightWinningCells(const std::vector<Move>& cells) { for(const auto& move : cells) boardButtons[move.row][move.col]->setStyleSheet("background-color: #f1c40f;"); }
-void GUIInterface::resetBoardHighlights() { for(int r=0; r<3; ++r) for(int c=0; c<3; ++c) boardButtons[r][c]->setStyleSheet(""); updateButtonStyles(); }
-void GUIInterface::updateBoard(bool isReplay) { resetBoardHighlights(); for (int i = 0; i < 3; ++i) for (int j = 0; j < 3; ++j) boardButtons[i][j]->setText(getPlayerName(gameLogic.getCell(i, j))); updateButtonStyles(); }
-void GUIInterface::updateScoreDisplay() { if(userAuth.isLoggedIn()) { const UserProfile* u = userAuth.getCurrentUser(); playerXScoreLabel->setText(QString("W: %1 L: %2 D: %3").arg(u->gamesWon).arg(u->gamesLost).arg(u->gamesTied)); } }
 void GUIInterface::updateGameStats() {}
-void GUIInterface::updateTimer() { timerLabel->setText(formatTime(gameTimeSeconds)); }
 void GUIInterface::animateGameOver(GameResult result) {}
 void GUIInterface::animateButton(QWidget* widget) {}
 void GUIInterface::addDropShadow(QWidget* widget) {}
 void GUIInterface::addGlowEffect(QWidget* widget, const QColor& color) {}
 void GUIInterface::fadeInWidget(QWidget* widget) {}
-void GUIInterface::switchToLoginView() { mainStack->setCurrentWidget(loginWidget); navigationFrame->hide(); }
-void GUIInterface::switchToGameView() { mainStack->setCurrentWidget(gameWidget); navigationFrame->show(); gameNavButton->setChecked(true); }
-void GUIInterface::switchToHistoryView() { mainStack->setCurrentWidget(historyWidget); navigationFrame->show(); historyNavButton->setChecked(true); }
-void GUIInterface::switchToStatsView() { mainStack->setCurrentWidget(statsWidget); navigationFrame->show(); statsNavButton->setChecked(true); }
-void GUIInterface::switchToSettingsView() { mainStack->setCurrentWidget(settingsWidget); navigationFrame->show(); settingsNavButton->setChecked(true); }
 void GUIInterface::updateNavigationButtons() {}
 void GUIInterface::loadUserGames() {}
 void GUIInterface::displayGameForReplay(const GameState& game) {}
@@ -814,9 +868,4 @@ void GUIInterface::exportGameHistory() {}
 void GUIInterface::loadSettings() {}
 void GUIInterface::saveSettings() {}
 void GUIInterface::applySettings() {}
-QString GUIInterface::formatTime(int totalSeconds) { return QString("%1:%2").arg(totalSeconds / 60, 2, 10, QChar('0')).arg(totalSeconds % 60, 2, 10, QChar('0')); }
-QString GUIInterface::formatGameResult(GameResult result) { if (result == GameResult::X_WINS) return "You Won!"; if (result == GameResult::O_WINS) return "Opponent Won"; if (result == GameResult::DRAW) return "It's a Draw"; return "In Progress"; }
-QString GUIInterface::getPlayerName(Player player) { if (player == Player::X) return "X"; if (player == Player::O) return "O"; return ""; }
-QColor GUIInterface::getPlayerColor(Player player) { if (player == Player::X) return QColor("#3498DB"); if (player == Player::O) return QColor("#E74C3C"); return Qt::white; }
-void GUIInterface::showNotification(const QString& message, const QString& type) { QMessageBox msgBox(this); msgBox.setText(message); msgBox.setIcon(type == "error" ? QMessageBox::Critical : QMessageBox::Information); msgBox.setWindowTitle(type == "error" ? "Error" : "Notification"); msgBox.exec(); }
 void GUIInterface::setLoading(QPushButton* button, bool loading) { button->setEnabled(!loading); }
