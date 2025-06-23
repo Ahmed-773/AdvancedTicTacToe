@@ -8,7 +8,7 @@ Purpose: Declares the AIEngine class. This stable version uses the minimax
 #ifndef AI_ENGINE_H
 #define AI_ENGINE_H
 
-#include "game_logic.h" // AIEngine needs to know about the game's rules and state.
+#include "game_logic.h"
 #include <vector>
 
 class AIEngine {
@@ -31,6 +31,8 @@ private:
 
     // --- Minimax Algorithm Helpers ---
     Move findBestMove(GameLogic& game);
+
+    // The minimax function now takes the game state by reference.
     int minimax(GameLogic& game, bool isMaximizing);
 };
 

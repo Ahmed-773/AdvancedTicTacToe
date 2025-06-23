@@ -10,7 +10,7 @@ Purpose: Implements a stable minimax algorithm and adds a debug message
 #include <algorithm>
 #include <random>
 #include <limits>
-#include <QDebug> // <-- Required for the debug message test
+#include <iostream> // For the std::cout debug message
 
 AIEngine::AIEngine() : currentDifficulty(HARD) {}
 
@@ -24,9 +24,9 @@ void AIEngine::setDifficulty(int level) {
 
 Move AIEngine::getBestMove(GameLogic& game) {
     // --- DEBUG TEST ---
-    // This message should appear in your "Application Output" right before the AI moves.
+    // This message should appear in your Application Output right before the AI moves.
     // If it doesn't appear and the game crashes, the old file is still being used.
-    qDebug() << "--- AI is thinking... ---";
+    std::cout << "--- AI IS THINKING (NEW CODE) ---" << std::endl;
 
     if (currentDifficulty == EASY) {
         std::vector<Move> availableMoves = game.getAvailableMoves();
@@ -49,7 +49,7 @@ Move AIEngine::findBestMove(GameLogic& game) {
 
     for (const auto& move : availableMoves) {
         game.makeMove(move.row, move.col);
-        int moveVal = minimax(game, false); // Pass `false` as it's now minimizer's turn
+        int moveVal = minimax(game, false);
         game.undoLastMove();
 
         if (moveVal > bestVal) {
@@ -60,6 +60,7 @@ Move AIEngine::findBestMove(GameLogic& game) {
     return bestMove;
 }
 
+// The recursive minimax function now correctly uses pass-by-reference.
 int AIEngine::minimax(GameLogic& game, bool isMaximizing) {
     GameResult result = game.checkGameResult();
 
