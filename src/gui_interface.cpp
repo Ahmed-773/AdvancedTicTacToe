@@ -15,7 +15,8 @@
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QDebug>
-#include <QHeaderView> // <-- SOLUTION: Added missing include
+#include <QHeaderView>
+#include <QTableWidgetItem>
 
 // Define the time limit for each turn in seconds.
 static const int TURN_TIME_LIMIT_S = 15;
@@ -380,6 +381,7 @@ void GUIInterface::setupHistoryView() {
 
     connect(backToGameButton, &QPushButton::clicked, this, &GUIInterface::onBackToGameClicked);
     connect(exportHistoryButton, &QPushButton::clicked, this, &GUIInterface::exportGameHistory);
+    // The connect call itself is correct, the error was in the slot's definition.
     connect(gameHistoryTable, &QTableWidget::itemDoubleClicked, this, &GUIInterface::onGameHistoryItemClicked);
     
     mainStack->addWidget(historyWidget);
@@ -761,7 +763,26 @@ void GUIInterface::makeAIMove() {
 // ... The rest of the functions remain largely the same, stubs are for brevity ...
 void GUIInterface::onViewHistoryClicked() {}
 void GUIInterface::onViewStatsClicked() {}
-void GUIInterface::onGameHistoryItemClicked(int row, int column) {}
+void GUIInterface::onGameHistoryItemClicked(QTableWidgetItem *item) {
+    if (!item) { // Always good practice to check for nullptr
+        return;
+    }
+
+    // Get the row from the item that the signal provides
+    int row = item->row();
+    
+    // Now the rest of the logic can proceed as intended
+    // Use the item from column 0 in the given row to get the Game ID
+    QVariant data = gameHistoryTable->item(row, 0)->data(Qt::UserRole);
+    if (data.isValid()) {
+        std::string gameId = data.toString().toStdString();
+        GameState game = gameHistory.getGameById(gameId);
+
+        if (!game.gameId.empty()) {
+            displayGameForReplay(game);
+        }
+    }
+}
 void GUIInterface::onBackToGameClicked() { switchToGameView(); }
 void GUIInterface::onReplayNextClicked() {}
 void GUIInterface::onReplayPrevClicked() {}

@@ -60,7 +60,7 @@ private slots:
     void onAnimationSpeedChanged(int value);
     void onViewHistoryClicked();
     void onViewStatsClicked();
-    void onGameHistoryItemClicked(int row, int column);
+    void onGameHistoryItemClicked(QTableWidgetItem *item);
     void onBackToGameClicked();
     void onReplayNextClicked();
     void onReplayPrevClicked();
