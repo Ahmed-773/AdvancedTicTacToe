@@ -17,8 +17,7 @@
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
 #include <QParallelAnimationGroup> // For more complex animations
-
-// ... (All functions from the top of the file down to the switching functions remain the same) ...
+#include <QPixmap>
 
 
 // =====================================================================================
@@ -129,7 +128,6 @@ void GUIInterface::setupUI() {
     mainLayout->addWidget(navigationFrame);
     mainLayout->addWidget(mainStack, 1);
     
-    updateNavigationButtons();
 }
 
 void GUIInterface::setupNavigation() {
@@ -187,20 +185,31 @@ void GUIInterface::setupAuthentication() {
     QHBoxLayout *loginMainLayout = new QHBoxLayout(loginWidget);
     loginMainLayout->setContentsMargins(0, 0, 0, 0);
     
+    // --- Welcome Panel (Left Side) ---
     welcomeFrame = new QFrame();
     welcomeFrame->setObjectName("welcomeFrame");
     QVBoxLayout *welcomeLayout = new QVBoxLayout(welcomeFrame);
     welcomeLayout->setAlignment(Qt::AlignCenter);
+    welcomeLayout->setSpacing(20); // Added spacing for a cleaner look
+
+    // --- CHANGE #1: Add the new logo label ---
+    QLabel* logoLabel = new QLabel();
+    QPixmap logoPixmap(":/logo.png"); // Load the logo from resources
+    logoLabel->setPixmap(logoPixmap.scaled(150, 150, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setAlignment(Qt::AlignCenter);
+    
     QLabel *welcomeTitle = new QLabel("Welcome to\nAdvanced Tic Tac Toe");
     welcomeTitle->setObjectName("welcomeTitle");
     welcomeTitle->setAlignment(Qt::AlignCenter);
     welcomeTitle->setWordWrap(true);
-    QLabel *featuresLabel = new QLabel("✨ AI Opponents\n🎯 Multiple Difficulty Levels\n📊 Game Statistics\n🎮 Replay System\n🎨 Multiple Themes");
-    featuresLabel->setObjectName("featuresList");
-    welcomeLayout->addWidget(welcomeTitle);
-    welcomeLayout->addSpacing(30);
-    welcomeLayout->addWidget(featuresLabel);
 
+    // Add the new logo and the title to the layout
+    welcomeLayout->addWidget(logoLabel);
+    welcomeLayout->addWidget(welcomeTitle);
+
+    // --- CHANGE #2: The old featuresLabel has been completely removed. ---
+    
+    // --- Login Form (Right Side) ---
     loginFrame = new QFrame();
     loginFrame->setObjectName("loginFormContainer");
     loginFrame->setMaximumWidth(400);
@@ -238,6 +247,7 @@ void GUIInterface::setupAuthentication() {
     loginLayout->addStretch();
     loginLayout->addWidget(loginStatusLabel);
     
+    // --- Final Assembly ---
     loginMainLayout->addWidget(welcomeFrame, 1);
     loginMainLayout->addWidget(loginFrame);
     
@@ -1066,9 +1076,6 @@ void GUIInterface::displayGameForReplay(const GameState& game) {
     switchToGameView();
 }
 
-void GUIInterface::updateNavigationButtons() {
-    // The :checked pseudo-state in the QSS handles button styling automatically.
-}
 void GUIInterface::exportGameHistory() {}
 void GUIInterface::loadSettings() {}
 void GUIInterface::saveSettings() {}

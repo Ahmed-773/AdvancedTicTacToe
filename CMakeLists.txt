@@ -49,6 +49,7 @@ add_executable(benchmark
     # It needs the same backend logic as the tests
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game_logic.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ai_engine.cpp
+    resources.qrc
 )
 target_include_directories(benchmark PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
