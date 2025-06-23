@@ -129,7 +129,6 @@ void GUIInterface::setupUI() {
     mainLayout->addWidget(navigationFrame);
     mainLayout->addWidget(mainStack, 1);
     
-    updateNavigationButtons();
 }
 
 void GUIInterface::setupNavigation() {
