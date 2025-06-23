@@ -755,6 +755,44 @@ void GUIInterface::makeAIMove() {
     }
 }
 
+void GUIInterface::animateCellPlacement(int row, int col, Player player) {
+    if (!animationsEnabled) {
+        updateBoard();
+        return;
+    }
+
+    QPushButton* button = boardButtons[row][col];
+    if (!button) return; // Safety check
+
+    // If an effect already exists, it will be managed by its parent (the button),
+    // but we must set the pointer to null to avoid using a stale effect.
+    if (button->graphicsEffect()) {
+        button->setGraphicsEffect(nullptr);
+    }
+
+    QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(button);
+    button->setGraphicsEffect(effect);
+
+    // Parent the animation to 'this' (the GUIInterface) to manage its lifetime
+    QPropertyAnimation* anim = new QPropertyAnimation(effect, "opacity", this);
+    anim->setDuration(animationSpeed);
+    anim->setStartValue(0.0);
+    anim->setEndValue(1.0);
+    anim->setEasingCurve(QEasingCurve::InOutQuad);
+
+    // When the animation is finished, clean up the effect.
+    // By providing 'button' as the context object, Qt guarantees this lambda
+    // will NOT be called if the button is destroyed before the animation finishes.
+    connect(anim, &QPropertyAnimation::finished, button, [button]() {
+        if (button) {
+            button->setGraphicsEffect(nullptr);
+        }
+    });
+
+    // The animation will delete itself once it's done.
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
 void GUIInterface::animateButton(QWidget* widget) {}
 
 void GUIInterface::animateGameOver(GameResult result) {}
