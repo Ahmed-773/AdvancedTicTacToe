@@ -1,98 +1,98 @@
-// ai_engine.cpp
+/*
+================================================================================
+File: src/ai_engine.cpp
+Purpose: Implements a stable and memory-efficient minimax algorithm.
+         This fixes the stack overflow crash.
+================================================================================
+*/
 #include "ai_engine.h"
+#include <vector>
+#include <algorithm> // For std::max and std::min
+#include <random>    // For the "Easy" difficulty
 
-AIEngine::AIEngine(int difficulty) : difficulty(difficulty) {}
+AIEngine::AIEngine() : currentDifficulty(HARD) {}
 
 void AIEngine::setDifficulty(int level) {
-    difficulty = level;
+    if (level == 0) {
+        currentDifficulty = EASY;
+    } else {
+        // For this game, Medium and Hard will both play perfectly.
+        currentDifficulty = HARD;
+    }
 }
 
-Player AIEngine::getAIPlayer(const GameLogic& gameState) {
-    return gameState.getCurrentPlayer();
-}
-
-Move AIEngine::getBestMove(const GameLogic& gameState) {
-    GameLogic tempState = gameState;
-    Player aiPlayer = getAIPlayer(gameState);
-    int bestScore = std::numeric_limits<int>::min();
-    Move bestMove(-1, -1);
-    
-    // Get all available moves
-    std::vector<Move> availableMoves = tempState.getAvailableMoves();
-    
-    for (const auto& move : availableMoves) {
-        // Try this move
-        GameLogic boardCopy = tempState;
-        boardCopy.makeMove(move.row, move.col);
-        
-        // Calculate score with minimax
-        int score = minimax(boardCopy, difficulty, false);
-        
-        // Update best move if found
-        if (score > bestScore) {
-            bestScore = score;
-            bestMove = move;
+Move AIEngine::getBestMove(GameLogic& game) {
+    if (currentDifficulty == EASY) {
+        std::vector<Move> availableMoves = game.getAvailableMoves();
+        if (availableMoves.empty()) {
+            return {-1, -1};
         }
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(0, availableMoves.size() - 1);
+        return availableMoves[distrib(gen)];
     }
     
+    // Use the optimal algorithm for Hard difficulty.
+    return findBestMove(game);
+}
+
+// This is the main entry point for the minimax calculation.
+Move AIEngine::findBestMove(GameLogic& game) {
+    int bestVal = -1000;
+    Move bestMove = {-1, -1};
+
+    std::vector<Move> availableMoves = game.getAvailableMoves();
+
+    for (const auto& move : availableMoves) {
+        // Make the move on the actual board passed by reference.
+        game.makeMove(move.row, move.col);
+        
+        // Calculate the score for this move. The AI is 'O' (the maximizer),
+        // so after its move, it will be the player's ('X', the minimizer) turn.
+        int moveVal = minimax(game, false); 
+        
+        // IMPORTANT: Undo the move to restore the board to its original state for the next iteration.
+        game.undoLastMove();
+
+        if (moveVal > bestVal) {
+            bestMove = move;
+            bestVal = moveVal;
+        }
+    }
     return bestMove;
 }
 
-int AIEngine::minimax(GameLogic gameState, int depth, bool isMaximizing, int alpha, int beta) {
-    GameResult result = gameState.checkGameResult();
-    Player aiPlayer = getAIPlayer(gameState);
-    Player opponent = (aiPlayer == Player::X) ? Player::O : Player::X;
-    
-    // Terminal state evaluation
-    if (result == GameResult::X_WINS) {
-        return (aiPlayer == Player::X) ? 10 + depth : -10 - depth;
-    }
-    if (result == GameResult::O_WINS) {
-        return (aiPlayer == Player::O) ? 10 + depth : -10 - depth;
-    }
-    if (result == GameResult::DRAW || depth == 0) {
-        return 0;
-    }
-    
-    if (isMaximizing) {
-        int maxEval = std::numeric_limits<int>::min();
-        for (const auto& move : gameState.getAvailableMoves()) {
-            GameLogic boardCopy = gameState;
-            boardCopy.makeMove(move.row, move.col);
-            int eval = minimax(boardCopy, depth - 1, false, alpha, beta);
-            maxEval = std::max(maxEval, eval);
-            alpha = std::max(alpha, eval);
-            if (beta <= alpha) {
-                break;  // Alpha-beta pruning
-            }
-        }
-        return maxEval;
-    } else {
-        int minEval = std::numeric_limits<int>::max();
-        for (const auto& move : gameState.getAvailableMoves()) {
-            GameLogic boardCopy = gameState;
-            boardCopy.makeMove(move.row, move.col);
-            int eval = minimax(boardCopy, depth - 1, true, alpha, beta);
-            minEval = std::min(minEval, eval);
-            beta = std::min(beta, eval);
-            if (beta <= alpha) {
-                break;  // Alpha-beta pruning
-            }
-        }
-        return minEval;
-    }
-}
+// The recursive minimax function.
+// It takes the game state BY REFERENCE (&) to avoid crashing.
+int AIEngine::minimax(GameLogic& game, bool isMaximizing) {
+    GameResult result = game.checkGameResult();
 
-int AIEngine::evaluateBoard(const GameLogic& gameState, Player aiPlayer) {
-    GameResult result = gameState.checkGameResult();
-    
-    // Terminal state evaluation
-    if (result == GameResult::X_WINS) {
-        return (aiPlayer == Player::X) ? 10 : -10;
+    // Check for a terminal state (win, loss, draw) and return a score.
+    if (result == GameResult::O_WINS) return 10;  // AI 'O' wins
+    if (result == GameResult::X_WINS) return -10; // Player 'X' wins
+    if (result == GameResult::DRAW) return 0;   // Draw
+
+    // If it's the maximizer's (AI's) turn
+    if (isMaximizing) {
+        int best = -1000;
+        std::vector<Move> availableMoves = game.getAvailableMoves();
+        for (const auto& move : availableMoves) {
+            game.makeMove(move.row, move.col);
+            best = std::max(best, minimax(game, !isMaximizing));
+            game.undoLastMove();
+        }
+        return best;
+    } 
+    // If it's the minimizer's (Player's) turn
+    else {
+        int best = 1000;
+        std::vector<Move> availableMoves = game.getAvailableMoves();
+        for (const auto& move : availableMoves) {
+            game.makeMove(move.row, move.col);
+            best = std::min(best, minimax(game, !isMaximizing));
+            game.undoLastMove();
+        }
+        return best;
     }
-    if (result == GameResult::O_WINS) {
-        return (aiPlayer == Player::O) ? 10 : -10;
-    }
-    
-    return 0;  // Draw or in progress
 }
