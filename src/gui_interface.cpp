@@ -129,6 +129,7 @@ void GUIInterface::setupUI() {
     mainLayout->addWidget(navigationFrame);
     mainLayout->addWidget(mainStack, 1);
     
+    updateNavigationButtons();
 }
 
 void GUIInterface::setupNavigation() {
@@ -140,7 +141,7 @@ void GUIInterface::setupNavigation() {
     navLayout->setContentsMargins(0, 20, 0, 20);
     navLayout->setSpacing(5);
     
-    QLabel *titleLabel = new QLabel("\nTicTacToe");
+    QLabel *titleLabel = new QLabel("TicTacToe\nPro");
     titleLabel->setObjectName("appTitle");
     titleLabel->setAlignment(Qt::AlignCenter);
     
@@ -164,8 +165,7 @@ void GUIInterface::setupNavigation() {
     navLayout->addWidget(titleLabel, 0, Qt::AlignTop);
     navLayout->addSpacing(30);
     
-    // --- UI CALL: Connecting the navigation buttons to their corresponding slots ---
-    // This makes the onViewHistoryClicked and onViewStatsClicked functions active.
+    // This makes the "History" and "Statistics" buttons work again.
     connect(gameNavButton, &QPushButton::clicked, this, &GUIInterface::switchToGameView);
     connect(historyNavButton, &QPushButton::clicked, this, &GUIInterface::onViewHistoryClicked);
     connect(statsNavButton, &QPushButton::clicked, this, &GUIInterface::onViewStatsClicked);
@@ -920,8 +920,10 @@ QString GUIInterface::formatGameResult(GameResult result) { if (result == GameRe
 QString GUIInterface::getPlayerName(Player player) { if (player == Player::X) return "X"; if (player == Player::O) return "O"; return ""; }
 QColor GUIInterface::getPlayerColor(Player player) { if (player == Player::X) return QColor("#3498DB"); if (player == Player::O) return QColor("#E74C3C"); return Qt::white; }
 void GUIInterface::showNotification(const QString& message, const QString& type) { QMessageBox msgBox(this); msgBox.setText(message); msgBox.setIcon(type == "error" ? QMessageBox::Critical : QMessageBox::Information); msgBox.setWindowTitle(type == "error" ? "Error" : "Notification"); msgBox.exec(); }
-void GUIInterface::onViewHistoryClicked() {}
-void GUIInterface::onViewStatsClicked() {}
+// This slot is called by the "Game History" button.
+void GUIInterface::onViewHistoryClicked() { switchToHistoryView();}
+// This slot is called by the "Statistics" button.
+void GUIInterface::onViewStatsClicked() { switchToStatsView();}
 void GUIInterface::onBackToGameClicked() { switchToGameView(); }
 
 // This slot is called when the "Next Move" (⏩) button is clicked.
@@ -1064,7 +1066,9 @@ void GUIInterface::displayGameForReplay(const GameState& game) {
     switchToGameView();
 }
 
-
+void GUIInterface::updateNavigationButtons() {
+    // The :checked pseudo-state in the QSS handles button styling automatically.
+}
 void GUIInterface::exportGameHistory() {}
 void GUIInterface::loadSettings() {}
 void GUIInterface::saveSettings() {}

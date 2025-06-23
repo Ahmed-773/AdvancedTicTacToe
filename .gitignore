@@ -2,6 +2,7 @@
 /build/
 /Final-Game-Windows/
 /Advanced-Tic-Tac-Toe-v1.0.0-Windows/
+/CMakeLists.txt.user/
 
 # Prerequisites
 *.d
