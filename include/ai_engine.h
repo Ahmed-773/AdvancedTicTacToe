@@ -16,8 +16,6 @@ public:
     AIEngine();
 
     // The main function called by the GUI to get the AI's next move.
-    // It takes a non-const reference because our internal minimax needs to
-    // make and undo moves on the board to test possibilities.
     Move getBestMove(GameLogic& game);
 
     // Allows the GUI to change the AI's difficulty.
@@ -26,16 +24,13 @@ public:
 private:
     // Defines the different difficulty levels for the AI.
     enum Difficulty {
-        EASY,   // Makes random valid moves.
-        HARD    // Uses the full minimax algorithm to play perfectly.
+        EASY,
+        HARD
     };
     Difficulty currentDifficulty;
 
     // --- Minimax Algorithm Helpers ---
-    // These are the core functions for the AI's decision-making process.
     Move findBestMove(GameLogic& game);
-
-    // The minimax function now takes the game state by reference to be efficient.
     int minimax(GameLogic& game, bool isMaximizing);
 };
 
