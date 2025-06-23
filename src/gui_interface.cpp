@@ -1,6 +1,5 @@
 // gui_interface.cpp (UI Refresh Fix)
 #include "gui_interface.h"
-
 #include <QApplication>
 #include <QSettings>
 #include <QButtonGroup>
@@ -17,6 +16,7 @@
 #include <QTableWidgetItem>
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
+#include <QParallelAnimationGroup> // For more complex animations
 
 // ... (All functions from the top of the file down to the switching functions remain the same) ...
 
@@ -141,7 +141,7 @@ void GUIInterface::setupNavigation() {
     navLayout->setContentsMargins(0, 20, 0, 20);
     navLayout->setSpacing(5);
     
-    QLabel *titleLabel = new QLabel("TicTacToe\nPro");
+    QLabel *titleLabel = new QLabel("\nTicTacToe");
     titleLabel->setObjectName("appTitle");
     titleLabel->setAlignment(Qt::AlignCenter);
     
@@ -165,9 +165,11 @@ void GUIInterface::setupNavigation() {
     navLayout->addWidget(titleLabel, 0, Qt::AlignTop);
     navLayout->addSpacing(30);
     
+    // --- UI CALL: Connecting the navigation buttons to their corresponding slots ---
+    // This makes the onViewHistoryClicked and onViewStatsClicked functions active.
     connect(gameNavButton, &QPushButton::clicked, this, &GUIInterface::switchToGameView);
-    connect(historyNavButton, &QPushButton::clicked, this, &GUIInterface::switchToHistoryView);
-    connect(statsNavButton, &QPushButton::clicked, this, &GUIInterface::switchToStatsView);
+    connect(historyNavButton, &QPushButton::clicked, this, &GUIInterface::onViewHistoryClicked);
+    connect(statsNavButton, &QPushButton::clicked, this, &GUIInterface::onViewStatsClicked);
     connect(settingsNavButton, &QPushButton::clicked, this, &GUIInterface::switchToSettingsView);
     
     navLayout->addStretch();
@@ -325,6 +327,8 @@ void GUIInterface::setupScoreDisplay(QVBoxLayout* layout) {
     scoreLayout->addWidget(winRateLabel);
     
     layout->addWidget(scoreFrame);
+    // --- UI CALL: Applying a drop shadow for better visual depth ---
+    addDropShadow(scoreFrame);
 }
 
 void GUIInterface::setupGameModeControls(QVBoxLayout* layout) {
@@ -366,6 +370,9 @@ void GUIInterface::setupGameControls(QVBoxLayout* layout) {
     connect(newGameButton, &QPushButton::clicked, this, &GUIInterface::onNewGameButtonClicked);
     connect(undoButton, &QPushButton::clicked, this, &GUIInterface::onUndoMoveClicked);
     connect(hintButton, &QPushButton::clicked, this, &GUIInterface::onHintClicked);
+
+    // --- UI CALL: Applying a drop shadow for better visual depth ---
+    addDropShadow(controlsFrame);
 }
 
 void GUIInterface::setupHistoryView() {
@@ -588,6 +595,7 @@ void GUIInterface::onLoginButtonClicked() {
         switchToGameView();
     } else {
         showNotification("Invalid username or password.", "error");
+        // --- UI CALL: Animating the login form to show an error ---
         animateButton(loginFrame);
     }
 }
@@ -721,7 +729,9 @@ void GUIInterface::handleGameOver(GameResult result) {
     if (result == GameResult::X_WINS || result == GameResult::O_WINS) {
         highlightWinningCells(gameLogic.findWinningCombination());
     }
-
+    // --- UI CALL: Playing an animation to make the game over state more impactful ---
+    animateGameOver(result);
+    
     for (int i = 0; i < 3; ++i) for (int j = 0; j < 3; ++j) boardButtons[i][j]->setEnabled(false);
     undoButton->setEnabled(false);
     hintButton->setEnabled(false);
@@ -793,9 +803,46 @@ void GUIInterface::animateCellPlacement(int row, int col, Player player) {
     anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-void GUIInterface::animateButton(QWidget* widget) {}
+// Provides a subtle "shake" or "wobble" animation for a widget.
+// Useful for drawing attention or providing feedback on an invalid action.
+void GUIInterface::animateButton(QWidget* widget) {
+    if (!animationsEnabled || !widget) return;
 
-void GUIInterface::animateGameOver(GameResult result) {}
+    QPropertyAnimation* anim = new QPropertyAnimation(widget, "pos", this);
+    QPoint originalPos = widget->pos();
+    anim->setDuration(300);
+    anim->setEasingCurve(QEasingCurve::InOutSine);
+
+    // Create the wobble effect
+    anim->setKeyValueAt(0.0, originalPos);
+    anim->setKeyValueAt(0.1, originalPos + QPoint(5, 0));
+    anim->setKeyValueAt(0.2, originalPos - QPoint(5, 0));
+    anim->setKeyValueAt(0.3, originalPos + QPoint(5, 0));
+    anim->setKeyValueAt(0.4, originalPos - QPoint(5, 0));
+    anim->setKeyValueAt(0.5, originalPos);
+
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+// Provides a flourish when the game ends to make the result more impactful.
+void GUIInterface::animateGameOver(GameResult result) {
+    if (!animationsEnabled) return;
+
+    // We can animate the status label to make it pop.
+    QPropertyAnimation* anim = new QPropertyAnimation(statusLabel, "geometry", this);
+    QRect startGeom = statusLabel->geometry();
+    QRect endGeom = startGeom.adjusted(-10, -5, 10, 5); // Make it slightly larger
+
+    anim->setDuration(600);
+    anim->setEasingCurve(QEasingCurve::OutElastic); // A bouncy effect
+
+    // Animate from original size, to larger, back to original
+    anim->setKeyValueAt(0.0, startGeom);
+    anim->setKeyValueAt(0.5, endGeom);
+    anim->setKeyValueAt(1.0, startGeom);
+
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
 
 void GUIInterface::onGameTimerUpdate() { if(isGameInProgress) gameTimeSeconds++; updateTimer(); }
 
@@ -877,14 +924,135 @@ void GUIInterface::showNotification(const QString& message, const QString& type)
 void GUIInterface::onViewHistoryClicked() {}
 void GUIInterface::onViewStatsClicked() {}
 void GUIInterface::onBackToGameClicked() { switchToGameView(); }
-void GUIInterface::onReplayNextClicked() {}
-void GUIInterface::onReplayPrevClicked() {}
-void GUIInterface::onReplayStartClicked() {}
-void GUIInterface::onReplayAutoPlay() {}
-void GUIInterface::addDropShadow(QWidget* widget) {}
-void GUIInterface::addGlowEffect(QWidget* widget, const QColor& color) {}
-void GUIInterface::fadeInWidget(QWidget* widget) {}
-void GUIInterface::updateNavigationButtons() {}
+
+// This slot is called when the "Next Move" (⏩) button is clicked.
+void GUIInterface::onReplayNextClicked() {
+    if (!isReplayMode || replayMoveIndex >= replayHistory.size()) {
+        // If we're at the end, stop the auto-play timer if it's running.
+        if(replayAutoTimer->isActive()) {
+            replayAutoTimer->stop();
+            replayAutoButton->setText("▶️");
+        }
+        return;
+    }
+
+    // Get the next move from our stored history and apply it to the board.
+    const Move& nextMove = replayHistory[replayMoveIndex];
+    gameLogic.makeMove(nextMove.row, nextMove.col);
+    replayMoveIndex++; // Move the index forward.
+
+    // Refresh the UI.
+    updateBoard(true);
+    updateReplayControls();
+}
+
+// This slot is called when the "Previous Move" (⏪) button is clicked.
+void GUIInterface::onReplayPrevClicked() {
+    if (!isReplayMode || replayMoveIndex <= 0) {
+        return;
+    }
+
+    replayMoveIndex--; // Move the index back.
+
+    // To go backward, we must reset the board and replay all moves up to the new index.
+    gameLogic.resetBoard();
+    for (int i = 0; i < replayMoveIndex; ++i) {
+        const Move& move = replayHistory[i];
+        gameLogic.makeMove(move.row, move.col);
+    }
+
+    // Refresh the UI.
+    updateBoard(true);
+    updateReplayControls();
+}
+
+// This slot is called when the "Go to Start" (⏮️) button is clicked.
+void GUIInterface::onReplayStartClicked() {
+    if (!isReplayMode) {
+        return;
+    }
+    
+    replayMoveIndex = 0;
+    gameLogic.resetBoard(); // Clear the board completely.
+
+    // Refresh the UI.
+    updateBoard(true);
+    updateReplayControls();
+}
+
+// This slot is called when the "Auto-Play/Pause" (▶️/⏸️) button is clicked.
+void GUIInterface::onReplayAutoPlay() {
+    if (!isReplayMode) {
+        return;
+    }
+
+    // If the timer is already running, stop it (Pause).
+    if (replayAutoTimer->isActive()) {
+        replayAutoTimer->stop();
+        replayAutoButton->setText("▶️");
+    } else {
+        // If the replay is at the end, restart it before playing.
+        if (replayMoveIndex >= replayHistory.size()) {
+            onReplayStartClicked();
+        }
+        // Start the timer to call onReplayNextClicked every 1.2 seconds.
+        replayAutoTimer->start(1200);
+        replayAutoButton->setText("⏸️");
+    }
+}
+
+// This helper function updates the replay UI elements.
+void GUIInterface::updateReplayControls() {
+    if (!isReplayMode) return;
+    
+    // Update the label e.g., "Move: 3 / 9"
+    replayPositionLabel->setText(QString("Move: %1 / %2").arg(replayMoveIndex).arg(replayHistory.size()));
+    
+    // Enable/disable buttons based on the current position in the replay.
+    replayPrevButton->setEnabled(replayMoveIndex > 0);
+    replayStartButton->setEnabled(replayMoveIndex > 0);
+    replayNextButton->setEnabled(replayMoveIndex < replayHistory.size());
+}
+
+// Applies a standard drop shadow effect to a widget for a sense of depth.
+void GUIInterface::addDropShadow(QWidget* widget) {
+    if (!widget) return;
+    QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);
+    shadow->setBlurRadius(20);
+    shadow->setColor(QColor(0, 0, 0, 80));
+    shadow->setOffset(0, 5);
+    widget->setGraphicsEffect(shadow);
+}
+
+// Applies a colored glow effect, useful for highlighting or hover effects.
+void GUIInterface::addGlowEffect(QWidget* widget, const QColor& color) {
+    if (!widget) return;
+    QGraphicsDropShadowEffect* glow = new QGraphicsDropShadowEffect(this);
+    glow->setBlurRadius(25);
+    glow->setColor(color);
+    glow->setOffset(0, 0);
+    widget->setGraphicsEffect(glow);
+}
+
+// Smoothly fades a widget into view.
+void GUIInterface::fadeInWidget(QWidget* widget) {
+    if (!animationsEnabled || !widget) {
+        widget->setVisible(true);
+        return;
+    }
+
+    QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(widget);
+    widget->setGraphicsEffect(effect);
+    widget->setVisible(true);
+
+    QPropertyAnimation* anim = new QPropertyAnimation(effect, "opacity", this);
+    anim->setDuration(animationSpeed);
+    anim->setStartValue(0.0);
+    anim->setEndValue(1.0);
+    anim->setEasingCurve(QEasingCurve::InOutQuad);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
 void GUIInterface::displayGameForReplay(const GameState& game) {
     gameLogic.resetBoard();
     updateBoard(true);
@@ -896,7 +1064,8 @@ void GUIInterface::displayGameForReplay(const GameState& game) {
     undoButton->setVisible(false);
     switchToGameView();
 }
-void GUIInterface::updateReplayControls() {}
+
+
 void GUIInterface::exportGameHistory() {}
 void GUIInterface::loadSettings() {}
 void GUIInterface::saveSettings() {}

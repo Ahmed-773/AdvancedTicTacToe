@@ -142,7 +142,6 @@ private:
     void switchToHistoryView();
     void switchToStatsView();
     void switchToSettingsView();
-    void updateNavigationButtons();
     void loadUserGames();
     void displayGameForReplay(const GameState& game);
     void updateReplayControls();
