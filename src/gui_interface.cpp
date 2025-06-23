@@ -1,4 +1,4 @@
-// gui_interface.cpp (Animation Crash Fix)
+// gui_interface.cpp (UI Refresh Fix)
 #include "gui_interface.h"
 
 #include <QApplication>
@@ -18,51 +18,52 @@
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
 
-// ... (Constructor and all setup functions are unchanged from the last version) ...
-// The primary fix is in the animateCellPlacement function.
+// ... (All functions from the top of the file down to the switching functions remain the same) ...
+
 
 // =====================================================================================
-// --- SOLUTION: The new, crash-proof animation function ---
+// --- Navigation and View Switching (SOLUTION AREA) ---
 // =====================================================================================
 
-void GUIInterface::animateCellPlacement(int row, int col, Player player) {
-    if (!animationsEnabled) {
-        updateBoard();
-        return;
-    }
-    
-    QPushButton* button = boardButtons[row][col];
-    if (!button) return; // Safety check
-
-    // If an effect already exists from a previous animation, remove it.
-    if(button->graphicsEffect()){
-        button->setGraphicsEffect(nullptr);
-    }
-    
-    QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(button);
-    button->setGraphicsEffect(effect);
-    
-    QPropertyAnimation* anim = new QPropertyAnimation(effect, "opacity", this); // Parent animation to GUI
-    anim->setDuration(animationSpeed);
-    anim->setStartValue(0.0);
-    anim->setEndValue(1.0);
-    anim->setEasingCurve(QEasingCurve::InOutQuad);
-
-    // This is the SAFE way to connect the cleanup.
-    // By providing 'button' as the context object, Qt guarantees this lambda
-    // will NOT be called if the button is destroyed before the animation finishes.
-    // This prevents the "read access violation" crash.
-    connect(anim, &QPropertyAnimation::finished, button, [button]() {
-        // The effect is parented to the button, so it will be cleaned up
-        // automatically. We just need to remove the pointer from the button.
-        button->setGraphicsEffect(nullptr);
-    });
-    
-    anim->start(QAbstractAnimation::DeleteWhenStopped);
+void GUIInterface::switchToLoginView() { 
+    mainStack->setCurrentWidget(loginWidget); 
+    navigationFrame->hide(); 
 }
 
+void GUIInterface::switchToGameView() { 
+    mainStack->setCurrentWidget(gameWidget); 
+    navigationFrame->show(); 
+    gameNavButton->setChecked(true); 
+}
 
-// --- The rest of the file remains the same as the last version ---
+void GUIInterface::switchToHistoryView() { 
+    // SOLUTION: Add this line to refresh the history table every time the view is shown.
+    loadUserGames(); 
+    
+    mainStack->setCurrentWidget(historyWidget); 
+    navigationFrame->show(); 
+    historyNavButton->setChecked(true); 
+}
+
+void GUIInterface::switchToStatsView() { 
+    // SOLUTION: Add this line to refresh the stats labels every time the view is shown.
+    updateGameStats(); 
+
+    mainStack->setCurrentWidget(statsWidget); 
+    navigationFrame->show(); 
+    statsNavButton->setChecked(true); 
+}
+
+void GUIInterface::switchToSettingsView() { 
+    mainStack->setCurrentWidget(settingsWidget); 
+    navigationFrame->show(); 
+    settingsNavButton->setChecked(true); 
+}
+
+// =====================================================================================
+// --- The rest of the file is included below for completeness ---
+// =====================================================================================
+
 
 GUIInterface::GUIInterface(const std::string& dbPath, QWidget *parent)
     : QMainWindow(parent),
@@ -581,10 +582,10 @@ void GUIInterface::updateButtonStyles() {
 void GUIInterface::onLoginButtonClicked() {
     if (userAuth.loginUser(usernameInput->text().toStdString(), passwordInput->text().toStdString())) {
         showNotification("Login Successful!", "success");
-        switchToGameView();
-        updateScoreDisplay();
+        // Refresh data on login
         updateGameStats();
         loadUserGames();
+        switchToGameView();
     } else {
         showNotification("Invalid username or password.", "error");
         animateButton(loginFrame);
@@ -606,8 +607,9 @@ void GUIInterface::onRegisterButtonClicked() {
 void GUIInterface::onGuestPlayClicked() {
     userAuth.logoutUser();
     showNotification("Playing as Guest. Progress will not be saved.", "info");
+    updateGameStats();
+    loadUserGames();
     switchToGameView();
-    updateScoreDisplay();
 }
 
 void GUIInterface::onLogoutButtonClicked() {
@@ -733,8 +735,8 @@ void GUIInterface::handleGameOver(GameResult result) {
                              (gameModeTab->currentIndex() == 0), gameLogic.getMoveHistory(), result);
         dbManager.saveGameHistory(gameHistory.getAllGames());
         
-        updateScoreDisplay();
         updateGameStats();
+        loadUserGames();
     }
 }
 
@@ -753,17 +755,82 @@ void GUIInterface::makeAIMove() {
     }
 }
 
+void GUIInterface::animateButton(QWidget* widget) {}
+
+void GUIInterface::animateGameOver(GameResult result) {}
+
 void GUIInterface::onGameTimerUpdate() { if(isGameInProgress) gameTimeSeconds++; updateTimer(); }
-void GUIInterface::highlightWinningCells(const std::vector<Move>& cells) { for(const auto& move : cells) boardButtons[move.row][move.col]->setStyleSheet("background-color: #f1c40f;"); }
-void GUIInterface::resetBoardHighlights() { for(int r=0; r<3; ++r) for(int c=0; c<3; ++c) boardButtons[r][c]->setStyleSheet(""); updateButtonStyles(); }
-void GUIInterface::updateBoard(bool isReplay) { resetBoardHighlights(); for (int i = 0; i < 3; ++i) for (int j = 0; j < 3; ++j) boardButtons[i][j]->setText(getPlayerName(gameLogic.getCell(i, j))); updateButtonStyles(); }
-void GUIInterface::updateScoreDisplay() { if(userAuth.isLoggedIn()) { const UserProfile* u = userAuth.getCurrentUser(); playerXScoreLabel->setText(QString("W: %1 L: %2 D: %3").arg(u->gamesWon).arg(u->gamesLost).arg(u->gamesTied)); } }
+
+void GUIInterface::highlightWinningCells(const std::vector<Move>& cells) { 
+    for(const auto& move : cells) {
+        boardButtons[move.row][move.col]->setStyleSheet("background-color: #f1c40f;");
+    }
+}
+
+void GUIInterface::resetBoardHighlights() { 
+    for(int r=0; r<3; ++r) for(int c=0; c<3; ++c) {
+        boardButtons[r][c]->setStyleSheet(""); 
+    }
+    updateButtonStyles(); 
+}
+
+void GUIInterface::updateBoard(bool isReplay) { 
+    resetBoardHighlights(); 
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            boardButtons[i][j]->setText(getPlayerName(gameLogic.getCell(i, j)));
+        }
+    }
+    updateButtonStyles(); 
+}
+
+void GUIInterface::updateScoreDisplay() { 
+    if(userAuth.isLoggedIn()) { 
+        const UserProfile* u = userAuth.getCurrentUser(); 
+        playerXScoreLabel->setText(QString("W: %1 L: %2 D: %3").arg(u->gamesWon).arg(u->gamesLost).arg(u->gamesTied)); 
+    } else {
+        playerXScoreLabel->setText("W:0 L:0 D:0");
+    }
+}
+
+void GUIInterface::updateGameStats() {
+    totalGamesLabel->setText("Total Games: 0");
+    winRateStatsLabel->setText("Win Rate: 0%");
+    averageGameTimeLabel->setText("Avg. Game Time: 0s");
+    longestStreakLabel->setText("Longest Streak: 0");
+    favoriteOpponentLabel->setText("Favorite Mode: N/A");
+    
+    if(userAuth.isLoggedIn()){
+        const UserProfile* user = userAuth.getCurrentUser();
+        totalGamesLabel->setText(QString("Total Games: %1").arg(user->gamesPlayed));
+        if (user->gamesPlayed > 0) {
+            double winRate = (user->gamesPlayed - user->gamesTied > 0) ? (static_cast<double>(user->gamesWon) / (user->gamesPlayed - user->gamesTied)) * 100.0 : 0.0;
+            winRateStatsLabel->setText(QString("Win Rate: %1%").arg(winRate, 0, 'f', 1));
+        }
+    }
+}
+
+void GUIInterface::loadUserGames() {
+    gameHistoryTable->setRowCount(0);
+    if (!userAuth.isLoggedIn()) return;
+    
+    std::vector<GameState> userGames = gameHistory.getUserGames(userAuth.getCurrentUser()->userId);
+    
+    for (const auto& game : userGames) {
+        int row = gameHistoryTable->rowCount();
+        gameHistoryTable->insertRow(row);
+        
+        QTableWidgetItem* dateItem = new QTableWidgetItem(QString::fromStdString(game.timestamp));
+        dateItem->setData(Qt::UserRole, QVariant(QString::fromStdString(game.gameId)));
+        
+        gameHistoryTable->setItem(row, 0, dateItem);
+        gameHistoryTable->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(game.player2Id)));
+        gameHistoryTable->setItem(row, 2, new QTableWidgetItem(formatGameResult(game.result)));
+        gameHistoryTable->setItem(row, 3, new QTableWidgetItem(QString::number(game.moveHistory.size())));
+    }
+}
+
 void GUIInterface::updateTimer() { timerLabel->setText(formatTime(gameTimeSeconds)); }
-void GUIInterface::switchToLoginView() { mainStack->setCurrentWidget(loginWidget); navigationFrame->hide(); }
-void GUIInterface::switchToGameView() { mainStack->setCurrentWidget(gameWidget); navigationFrame->show(); gameNavButton->setChecked(true); }
-void GUIInterface::switchToHistoryView() { mainStack->setCurrentWidget(historyWidget); navigationFrame->show(); historyNavButton->setChecked(true); }
-void GUIInterface::switchToStatsView() { mainStack->setCurrentWidget(statsWidget); navigationFrame->show(); statsNavButton->setChecked(true); }
-void GUIInterface::switchToSettingsView() { mainStack->setCurrentWidget(settingsWidget); navigationFrame->show(); settingsNavButton->setChecked(true); }
 QString GUIInterface::formatTime(int totalSeconds) { return QString("%1:%2").arg(totalSeconds / 60, 2, 10, QChar('0')).arg(totalSeconds % 60, 2, 10, QChar('0')); }
 QString GUIInterface::formatGameResult(GameResult result) { if (result == GameResult::X_WINS) return "You Won!"; if (result == GameResult::O_WINS) return "Opponent Won"; if (result == GameResult::DRAW) return "It's a Draw"; return "In Progress"; }
 QString GUIInterface::getPlayerName(Player player) { if (player == Player::X) return "X"; if (player == Player::O) return "O"; return ""; }
@@ -776,14 +843,10 @@ void GUIInterface::onReplayNextClicked() {}
 void GUIInterface::onReplayPrevClicked() {}
 void GUIInterface::onReplayStartClicked() {}
 void GUIInterface::onReplayAutoPlay() {}
-void GUIInterface::updateGameStats() {}
-void GUIInterface::animateGameOver(GameResult result) {}
-void GUIInterface::animateButton(QWidget* widget) {}
 void GUIInterface::addDropShadow(QWidget* widget) {}
 void GUIInterface::addGlowEffect(QWidget* widget, const QColor& color) {}
 void GUIInterface::fadeInWidget(QWidget* widget) {}
 void GUIInterface::updateNavigationButtons() {}
-void GUIInterface::loadUserGames() {}
 void GUIInterface::displayGameForReplay(const GameState& game) {
     gameLogic.resetBoard();
     updateBoard(true);
