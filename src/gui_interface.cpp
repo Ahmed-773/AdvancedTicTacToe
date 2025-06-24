@@ -173,22 +173,35 @@ void GUIInterface::setupAuthentication() {
     loginWidget->setObjectName("loginWidget");
     QHBoxLayout *loginMainLayout = new QHBoxLayout(loginWidget);
     loginMainLayout->setContentsMargins(0, 0, 0, 0);
+    // --- Welcome Panel (Left Side) - REDESIGNED ---
     welcomeFrame = new QFrame();
     welcomeFrame->setObjectName("welcomeFrame");
     QVBoxLayout *welcomeLayout = new QVBoxLayout(welcomeFrame);
     welcomeLayout->setAlignment(Qt::AlignCenter);
-    welcomeLayout->setSpacing(20);
-    // --- FIX #1: This is where the logo will be added ---
+    welcomeLayout->setSpacing(10); // Adjust spacing
+    
+    // Add Logo
     QLabel* logoLabel = new QLabel();
-    QPixmap logoPixmap(":/logo.png"); // The path must match your .qrc file
-    logoLabel->setPixmap(logoPixmap.scaled(300, 300, Qt::KeepAspectRatio, Qt::SmoothTransformation));//-------------Edited here-------------
+    QPixmap logoPixmap(":/logo.png"); // Assumes logo.png is in your resources
+    logoLabel->setPixmap(logoPixmap.scaled(150, 150, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     logoLabel->setAlignment(Qt::AlignCenter);
-    QLabel *welcomeTitle = new QLabel("Welcome to\nAdvanced Tic Tac Toe");
-    welcomeTitle->setObjectName("welcomeTitle");
-    welcomeTitle->setAlignment(Qt::AlignCenter);
-    welcomeTitle->setWordWrap(true);
+
+    // Add Main Title
+    QLabel *mainTitleLabel = new QLabel("Advanced Tic Tac Toe");
+    mainTitleLabel->setObjectName("mainTitleLabel"); // New object name for styling
+    mainTitleLabel->setAlignment(Qt::AlignCenter);
+    // Add Subtitle
+    QLabel *subTitleLabel = new QLabel("Pro Edition");
+    subTitleLabel->setObjectName("subTitleLabel"); // New object name for styling
+    subTitleLabel->setAlignment(Qt::AlignCenter);
+    
+    // Add new widgets to the layout
+    welcomeLayout->addStretch(); // Pushes content to the center
     welcomeLayout->addWidget(logoLabel);
-    welcomeLayout->addWidget(welcomeTitle);
+    welcomeLayout->addWidget(mainTitleLabel);
+    welcomeLayout->addWidget(subTitleLabel);
+    welcomeLayout->addStretch(); // Pushes content to the center
+
     loginFrame = new QFrame();
     loginFrame->setObjectName("loginFormContainer");
     loginFrame->setMaximumWidth(400);
@@ -199,13 +212,22 @@ void GUIInterface::setupAuthentication() {
     loginTitle->setObjectName("loginTitle");
     loginTitle->setAlignment(Qt::AlignCenter);
     QFormLayout *formLayout = new QFormLayout();
+    formLayout->setHorizontalSpacing(15);
+
     usernameInput = new QLineEdit();
     usernameInput->setPlaceholderText("Enter your username");
     passwordInput = new QLineEdit();
     passwordInput->setPlaceholderText("Enter your password");
     passwordInput->setEchoMode(QLineEdit::Password);
-    formLayout->addRow("Username:", usernameInput);
-    formLayout->addRow("Password:", passwordInput);
+    // --- NEW: Create labels for the icons ---
+    QLabel* userIconLabel = new QLabel();
+    userIconLabel->setPixmap(QPixmap(":/user.png").scaled(20, 20, Qt::KeepAspectRatio));
+    QLabel* passIconLabel = new QLabel();
+    passIconLabel->setPixmap(QPixmap(":/lock.png").scaled(20, 20, Qt::KeepAspectRatio));
+    
+    formLayout->addRow(userIconLabel, usernameInput);
+    formLayout->addRow(passIconLabel, passwordInput);
+
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     loginButton = new QPushButton("Sign In");
     registerButton = new QPushButton("Register");
@@ -313,6 +335,9 @@ void GUIInterface::setupGameModeControls(QVBoxLayout* layout) {
     pvpModeWidget = new QWidget();
     gameModeTab->addTab(pvpModeWidget, "vs Player");
     
+    gameModeTab->setTabIcon(0, QIcon(":/AI.png")); // Icon for "vs AI" tab
+    gameModeTab->setTabIcon(1, QIcon(":/people.png")); // Icon for "vs Player" tab
+
     layout->addWidget(gameModeTab);
     connect(gameModeTab, &QTabWidget::currentChanged, this, &GUIInterface::onGameModeChanged);
     connect(difficultyCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index){
@@ -491,7 +516,8 @@ void GUIInterface::applyTheme(Theme theme) {
     QString styleSheet = R"(
         QWidget { font-family: 'Segoe UI', sans-serif; }
         QFrame#navigationFrame { background-color: #2c3e50; }
-        QStackedWidget#mainStack, QWidget#loginWidget { background-color: #34495e; }
+        QStackedWidget#mainStack, QWidget#loginWidget {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #34495e, stop:1 #2c3e50);}
         QLabel { color: #ecf0f1; font-size: 14px; }
         QLabel#appTitle { color: #ffffff; font-size: 24px; font-weight: bold; }
         QLabel#welcomeTitle, QLabel#loginTitle, QLabel#titleLabel { font-size: 32px; font-weight: bold; color: #ffffff; }
@@ -516,6 +542,8 @@ void GUIInterface::applyTheme(Theme theme) {
         QFrame#welcomeFrame { background-color: transparent; }
         QTableWidget { background-color: #566573; color: #ecf0f1; border: none; gridline-color: #34495e; selection-background-color: #3498db; }
         QHeaderView::section { background-color: #2c3e50; color: #ffffff; padding: 8px; border: none; font-weight: bold; }
+        QLabel#mainTitleLabel { font-size: 36px; font-weight: bold; color: #ffffff; }
+        QLabel#subTitleLabel { font-size: 20px; font-style: italic; color: #bdc3c7; }
     )";
     
     if (theme == LIGHT) { /* Light theme QSS here */ }
