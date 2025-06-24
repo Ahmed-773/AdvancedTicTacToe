@@ -135,7 +135,7 @@ void GUIInterface::setupNavigation() {
     gameNavButton = new QPushButton( " Play Game");
     gameNavButton->setIcon(QIcon(":/play.png")); // Assumes play.png is in your resources
     gameNavButton = new QPushButton( " Pause Game");
-    gameNavButton->setIcon(QIcon(":/pause.png")); // Assumes pause.png is in your resources
+    gameNavButton->setIcon(QIcon(":/Play Game.png")); // Assumes Play Game.png is in your resources
     historyNavButton = new QPushButton(" Game History");
     historyNavButton->setIcon(QIcon(":/list.png")); // Assumes list.png
     statsNavButton = new QPushButton(" Statistics");
@@ -221,7 +221,7 @@ void GUIInterface::setupAuthentication() {
     passwordInput->setEchoMode(QLineEdit::Password);
     // --- NEW: Create labels for the icons ---
     QLabel* userIconLabel = new QLabel();
-    userIconLabel->setPixmap(QPixmap(":/user.png").scaled(20, 20, Qt::KeepAspectRatio));
+    userIconLabel->setPixmap(QPixmap(":/users.png").scaled(20, 20, Qt::KeepAspectRatio));
     QLabel* passIconLabel = new QLabel();
     passIconLabel->setPixmap(QPixmap(":/lock.png").scaled(20, 20, Qt::KeepAspectRatio));
     
@@ -714,6 +714,8 @@ void GUIInterface::onGameHistoryItemClicked(QTableWidgetItem *item) {
         }
 
         gameDetailsText->setHtml(details);
+        // Now, switch to the replay mode for the selected game.
+        displayGameForReplay(game);
     }
 }
 
