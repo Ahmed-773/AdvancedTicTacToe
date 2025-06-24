@@ -480,6 +480,12 @@ void GUIInterface::setupReplayControls() {
     replayControlsFrame->setVisible(false);
 }
 
+void GUIInterface::setupReplayControls(bool visible) {
+    if(replayControlsFrame) {
+        replayControlsFrame->setVisible(visible);
+    }
+}
+
 void GUIInterface::applyTheme(Theme theme) {
     currentTheme = theme;
     QString styleSheet = R"(
