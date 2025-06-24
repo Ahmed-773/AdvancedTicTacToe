@@ -126,6 +126,11 @@ void GUIInterface::setupNavigation() {
     navLayout->setContentsMargins(0, 20, 0, 20);
     navLayout->setSpacing(5);
     
+    // This line must come first.
+    // QLabel *titleLabel = new QLabel("TicTacToe\nPro");
+    // titleLabel->setObjectName("appTitle");
+    // titleLabel->setAlignment(Qt::AlignCenter);
+
     // Create buttons with new icons
     gameNavButton = new QPushButton( " Play Game");
     gameNavButton->setIcon(QIcon(":/play.png")); // Assumes play.png is in your resources
@@ -149,8 +154,8 @@ void GUIInterface::setupNavigation() {
         navLayout->addWidget(button);
     }
     
-    navLayout->addWidget(titleLabel, 0, Qt::AlignTop);
-    navLayout->addSpacing(30);
+    // navLayout->addWidget(titleLabel, 0, Qt::AlignTop);
+    // navLayout->addSpacing(30);
     connect(gameNavButton, &QPushButton::clicked, this, &GUIInterface::switchToGameView);
     connect(historyNavButton, &QPushButton::clicked, this, &GUIInterface::onViewHistoryClicked);
     connect(statsNavButton, &QPushButton::clicked, this, &GUIInterface::onViewStatsClicked);

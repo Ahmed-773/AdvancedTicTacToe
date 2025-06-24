@@ -45,7 +45,7 @@ public:
     void logoutUser();
     bool isLoggedIn() const;
     const UserProfile* getCurrentUser() const;
-    bool updateUserStats(GameResult result, int gameTime, bool vsAI);
+    void updateUserStats(GameResult result, int gameTime, bool vsAI);
 
     
     // --- Data Hydration ---
