@@ -183,7 +183,7 @@ void GUIInterface::setupAuthentication() {
     // Add Logo
     QLabel* logoLabel = new QLabel();
     QPixmap logoPixmap(":/logo.png"); // Assumes logo.png is in your resources
-    logoLabel->setPixmap(logoPixmap.scaled(150, 150, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setPixmap(logoPixmap.scaled(300, 300, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     logoLabel->setAlignment(Qt::AlignCenter);
 
     // Add Main Title
