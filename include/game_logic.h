@@ -24,7 +24,8 @@ struct GameState {
     std::vector<Move> moveHistory;
     GameResult result;
     std::string timestamp;
-
+    int durationSeconds = 0;
+    
     GameState() : result(GameResult::IN_PROGRESS), isAIOpponent(false) {}
 };
 

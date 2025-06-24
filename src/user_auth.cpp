@@ -61,20 +61,31 @@ const UserProfile* UserAuth::getCurrentUser() const {
     return currentUser;
 }
 
-bool UserAuth::updateUserStats(GameResult result) {
-    if (!currentUser) {
-        return false;
-    }
+void UserAuth::updateUserStats(GameResult result, int gameTime, bool vsAI) {
+    if (!currentUser) return;
 
     currentUser->gamesPlayed++;
+    currentUser->totalGameTimeSeconds += gameTime;
+
+    if (vsAI) {
+        currentUser->aiGamesPlayed++;
+    } else {
+        currentUser->pvpGamesPlayed++;
+    }
+
     if (result == GameResult::X_WINS) {
         currentUser->gamesWon++;
+        currentUser->currentWinStreak++;
+        if (currentUser->currentWinStreak > currentUser->longestWinStreak) {
+            currentUser->longestWinStreak = currentUser->currentWinStreak;
+        }
     } else if (result == GameResult::O_WINS) {
         currentUser->gamesLost++;
-    } else if (result == GameResult::DRAW) {
+        currentUser->currentWinStreak = 0; // Reset streak on a loss
+    } else { // Draw
         currentUser->gamesTied++;
+        currentUser->currentWinStreak = 0; // Reset streak on a draw
     }
-    return true;
 }
 
 void UserAuth::setUsers(const std::unordered_map<std::string, UserProfile>& usersMap) {

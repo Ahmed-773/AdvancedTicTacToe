@@ -45,7 +45,8 @@ public:
     void logoutUser();
     bool isLoggedIn() const;
     const UserProfile* getCurrentUser() const;
-    bool updateUserStats(GameResult result);
+    bool updateUserStats(GameResult result, int gameTime, bool vsAI);
+
     
     // --- Data Hydration ---
     // Used by the persistence layer to load all user data from the database.

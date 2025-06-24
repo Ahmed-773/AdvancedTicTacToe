@@ -662,6 +662,8 @@ void GUIInterface::onGameHistoryItemClicked(QTableWidgetItem *item) {
         details += "<b>Date:</b> " + QString::fromStdString(game.timestamp) + "<br>";
         details += "<b>Opponent:</b> " + QString::fromStdString(game.player2Id) + "<br>";
         details += "<b>Result:</b> " + formatGameResult(game.result) + "<br>";
+        
+        // This call now matches the GameState struct in game_logic.h
         details += "<b>Duration:</b> " + QString::number(game.durationSeconds) + " seconds<br><br>";
         details += "<b>Move List:</b><br>";
 
@@ -697,8 +699,10 @@ void GUIInterface::handleGameOver(GameResult result) {
         
         dbManager.saveUsers(userAuth.getUsers());
         std::string opponentId = vsAI ? "AI" : "Player2";
+
         gameHistory.saveGame(userAuth.getCurrentUser()->userId, opponentId, 
-                             vsAI, gameLogic.getMoveHistory(), result, gameTimeSeconds);
+                             vsAI, gameLogic.getMoveHistory(), result);
+
         dbManager.saveGameHistory(gameHistory.getAllGames());
         
         // Refresh the UI with the new stats

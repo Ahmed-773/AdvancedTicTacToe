@@ -12,8 +12,8 @@ GameHistory::GameHistory() {}
 // MODIFIED: This function now ONLY adds the game to the in-memory list.
 // It no longer calls the database manager.
 std::string GameHistory::saveGame(const std::string& player1Id, const std::string& player2Id,
-                         bool isAIOpponent, const std::vector<Move>& moves,
-                         GameResult result) {
+                        bool isAIOpponent, const std::vector<Move>& moves,
+                        GameResult result) {
     GameState newGame;
     newGame.gameId = generateGameId();
     newGame.player1Id = player1Id;
@@ -22,6 +22,8 @@ std::string GameHistory::saveGame(const std::string& player1Id, const std::strin
     newGame.moveHistory = moves;
     newGame.result = result;
     newGame.timestamp = getCurrentTimestamp();
+    // newGame.durationSeconds is not set here as it's not passed in.
+    // It will keep its default value of 0 unless set elsewhere.
 
     gameHistory.push_back(newGame);
     return newGame.gameId;
