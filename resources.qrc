@@ -1,1 +1,14 @@
-<RCC/>
+<RCC>
+    <qresource prefix="/">
+        <file>logo.png</file>
+        <file>pause.png</file>
+        <file>people.png</file>
+        <file>play.png</file>
+        <file>list.png</file>
+        <file>lock.png</file>
+        <file>settings.png</file>
+        <file>users.png</file>
+        <file>AI.png</file>
+        <file>bar-chart.png</file>
+    </qresource>
+</RCC>
