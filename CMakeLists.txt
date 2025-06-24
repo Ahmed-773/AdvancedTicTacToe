@@ -26,6 +26,7 @@ add_executable(the_final_game
     ${CMAKE_CURRENT_SOURCE_DIR}/src/database_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game_history.cpp
     resources.qrc
+
 )
 
 target_include_directories(the_final_game PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

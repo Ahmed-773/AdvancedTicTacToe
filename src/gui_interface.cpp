@@ -132,10 +132,10 @@ void GUIInterface::setupNavigation() {
     // titleLabel->setAlignment(Qt::AlignCenter);
 
     // Create buttons with new icons
+    // gameNavButton = new QPushButton( " Play Game");
+    // gameNavButton->setIcon(QIcon(":/play.png")); // Assumes play.png is in your resources
     gameNavButton = new QPushButton( " Play Game");
-    gameNavButton->setIcon(QIcon(":/play.png")); // Assumes play.png is in your resources
-    gameNavButton = new QPushButton( " Pause Game");
-    gameNavButton->setIcon(QIcon(":/Play Game.png")); // Assumes Play Game.png is in your resources
+    gameNavButton->setIcon(QIcon(":/Play-Game.png")); // Assumes Play Game.png is in your resources
     historyNavButton = new QPushButton(" Game History");
     historyNavButton->setIcon(QIcon(":/list.png")); // Assumes list.png
     statsNavButton = new QPushButton(" Statistics");
@@ -183,7 +183,7 @@ void GUIInterface::setupAuthentication() {
     // Add Logo
     QLabel* logoLabel = new QLabel();
     QPixmap logoPixmap(":/logo.png"); // Assumes logo.png is in your resources
-    logoLabel->setPixmap(logoPixmap.scaled(300, 300, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setPixmap(logoPixmap.scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     logoLabel->setAlignment(Qt::AlignCenter);
 
     // Add Main Title
@@ -335,8 +335,8 @@ void GUIInterface::setupGameModeControls(QVBoxLayout* layout) {
     pvpModeWidget = new QWidget();
     gameModeTab->addTab(pvpModeWidget, "vs Player");
     
-    gameModeTab->setTabIcon(0, QIcon(":/AI.png")); // Icon for "vs AI" tab
-    gameModeTab->setTabIcon(1, QIcon(":/people.png")); // Icon for "vs Player" tab
+    gameModeTab->setTabIcon(0, QIcon(":/vs AI.png")); // Icon for "vs AI" tab
+    gameModeTab->setTabIcon(1, QIcon(":/vs player.png")); // Icon for "vs Player" tab
 
     layout->addWidget(gameModeTab);
     connect(gameModeTab, &QTabWidget::currentChanged, this, &GUIInterface::onGameModeChanged);
@@ -539,6 +539,23 @@ void GUIInterface::applyTheme(Theme theme) {
         QLineEdit, QComboBox { padding: 8px; border: 1px solid #2c3e50; border-radius: 4px; background-color: #566573; color: white; }
         QLineEdit:focus { border-color: #3498db; }
         QFrame#loginFormContainer, QFrame[class='groupBox'], QGroupBox { background-color: rgba(0,0,0,0.2); border-radius: 15px; }
+        QTabWidget::pane { border: none; border-radius: 5px; padding: 2px;}
+        QTabBar::tab {
+        background-color: #566573; /* Lighter background for inactive tabs */
+        color: #ecf0f1;
+        padding: 8px 15px;
+        margin-right: 2px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        font-weight: bold;
+        }
+        QTabBar::tab:hover {
+        background-color: #6C7A89; /* A slightly brighter color for hover */
+        }
+        QTabBar::tab:selected {
+        background-color: #3498db; /* Main theme blue for the active tab */
+        color: white;
+        }
         QFrame#welcomeFrame { background-color: transparent; }
         QTableWidget { background-color: #566573; color: #ecf0f1; border: none; gridline-color: #34495e; selection-background-color: #3498db; }
         QHeaderView::section { background-color: #2c3e50; color: #ffffff; padding: 8px; border: none; font-weight: bold; }
