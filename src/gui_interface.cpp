@@ -116,7 +116,6 @@ void GUIInterface::setupUI() {
     setupSettingsView();
     mainLayout->addWidget(navigationFrame);
     mainLayout->addWidget(mainStack, 1);
-    updateNavigationButtons();
 }
 
 void GUIInterface::setupNavigation() {
@@ -1003,6 +1002,37 @@ void GUIInterface::displayGameForReplay(const GameState& game) {
     // Add a temporary button to exit the replay
     backToGameButton->setVisible(true);
 
+    switchToGameView();
+}
+
+void GUIInterface::switchToGameSetupView() {
+    isGameInProgress = true; // Set the flag to allow starting a game
+    isReplayMode = false;
+    gameTimeSeconds = 0;
+    
+    // Reset the board logic and UI elements
+    gameLogic.resetBoard();
+    updateBoard(); // Redraws the empty board
+    statusLabel->setText("Choose a mode and start playing!");
+    updateTimer();
+    gameTimer->start(1000);
+    
+    // Ensure all normal game controls are visible and replay controls are hidden
+    setupReplayControls(false);
+    timerLabel->setVisible(true);
+    scoreFrame->setVisible(true);
+    gameModeTab->setVisible(true);
+    controlsFrame->setVisible(true);
+    backToGameButton->setVisible(false);
+    
+    // Enable all buttons for the new game
+    for(int r=0; r<3; ++r) for(int c=0; c<3; ++c) {
+        boardButtons[r][c]->setEnabled(true);
+    }
+    undoButton->setEnabled(true);
+    hintButton->setEnabled(true);
+    
+    // Finally, switch to the main game screen
     switchToGameView();
 }
 

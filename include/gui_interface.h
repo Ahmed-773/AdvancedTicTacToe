@@ -159,6 +159,7 @@ private:
     QColor getPlayerColor(Player player);
     void showNotification(const QString& message, const QString& type = "info");
     void setLoading(QPushButton* button, bool loading);
+    void switchToGameSetupView();
 };
 
 #endif // GUI_INTERFACE_H
