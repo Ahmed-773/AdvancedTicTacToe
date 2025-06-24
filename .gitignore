@@ -1,8 +1,19 @@
-# Build output folder
+# output folder
 /build/
 /Final-Game-Windows/
 /Advanced-Tic-Tac-Toe-v1.0.0-Windows/
 /CMakeLists.txt.user/
+/bar-chart.png/
+/CMakeLists.txt.user/
+/list.png/
+/lock.png/
+/logo.png/
+/Play-Game.png/
+/resources.qrc/
+/settings.png/
+/users.png/
+/vs AI.png/
+/vs player.png/
 
 # Prerequisites
 *.d
