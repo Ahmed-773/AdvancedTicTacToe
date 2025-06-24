@@ -70,18 +70,18 @@ std::string DatabaseManager::serializeUsers(const std::unordered_map<std::string
     std::stringstream ss;
     for (const auto& pair : users) {
         const UserProfile& user = pair.second;
-        ss << u.userId << "|" << u.username << "|" << u.passwordHash
-           << "|" << u.gamesPlayed << "|" << u.gamesWon << "|" << u.gamesLost
-           << "|" << u.gamesTied << "|" << u.totalGameTimeSeconds 
-           << "|" << u.currentWinStreak << "|" << u.longestWinStreak
-           << "|" << u.aiGamesPlayed << "|" << u.pvpGamesPlayed << "\n";
+        ss << user.userId << "|" << user.username << "|" << user.passwordHash
+           << "|" << user.gamesPlayed << "|" << user.gamesWon << "|" << user.gamesLost
+           << "|" << user.gamesTied << "|" << user.totalGameTimeSeconds 
+           << "|" << user.currentWinStreak << "|" << user.longestWinStreak
+           << "|" << user.aiGamesPlayed << "|" << user.pvpGamesPlayed << "\n";
     }
     return ss.str();
 }
 
 //part 4
-std::map<std::string, UserProfile> DatabaseManager::deserializeUsers(const std::string& data) {
-    std::map<std::string, UserProfile> users;
+std::unordered_map<std::string, UserProfile> DatabaseManager::deserializeUsers(const std::string& data) {
+    std::unordered_map<std::string, UserProfile> users;
     std::stringstream ss(data);
     std::string line;
     while (std::getline(ss, line)) {
