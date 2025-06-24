@@ -3,6 +3,8 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
+#include <vector>
 
 DatabaseManager::DatabaseManager(std::string dbFilePath) : db_file_path_(dbFilePath) {
     // Create directory if it doesn't exist
@@ -68,44 +70,49 @@ std::string DatabaseManager::serializeUsers(const std::unordered_map<std::string
     std::stringstream ss;
     for (const auto& pair : users) {
         const UserProfile& user = pair.second;
-        ss << user.userId << "|"
-           << user.username << "|"
-           << user.passwordHash << "|"
-           << user.gamesPlayed << "|"
-           << user.gamesWon << "|"
-           << user.gamesLost << "|"
-           << user.gamesTied << "\n";
+        ss << u.userId << "|" << u.username << "|" << u.passwordHash
+           << "|" << u.gamesPlayed << "|" << u.gamesWon << "|" << u.gamesLost
+           << "|" << u.gamesTied << "|" << u.totalGameTimeSeconds 
+           << "|" << u.currentWinStreak << "|" << u.longestWinStreak
+           << "|" << u.aiGamesPlayed << "|" << u.pvpGamesPlayed << "\n";
     }
     return ss.str();
 }
 
 //part 4
-std::unordered_map<std::string, UserProfile> DatabaseManager::deserializeUsers(const std::string& data) {
-    std::unordered_map<std::string, UserProfile> users;
+std::map<std::string, UserProfile> DatabaseManager::deserializeUsers(const std::string& data) {
+    std::map<std::string, UserProfile> users;
     std::stringstream ss(data);
     std::string line;
     while (std::getline(ss, line)) {
-        if (line.empty()) continue;
         std::stringstream lineStream(line);
-        std::string field;
-        UserProfile user;
-        
-        if (!std::getline(lineStream, field, '|')) continue;
-        user.userId = field;
-        if (!std::getline(lineStream, field, '|')) continue;
-        user.username = field;
-        if (!std::getline(lineStream, field, '|')) continue;
-        user.passwordHash = field;
-        if (!std::getline(lineStream, field, '|')) continue;
-        user.gamesPlayed = std::stoi(field);
-        if (!std::getline(lineStream, field, '|')) continue;
-        user.gamesWon = std::stoi(field);
-        if (!std::getline(lineStream, field, '|')) continue;
-        user.gamesLost = std::stoi(field);
-        if (!std::getline(lineStream, field, '|')) continue;
-        user.gamesTied = std::stoi(field);
-        
-        users[user.userId] = user;
+        std::string segment;
+        UserProfile u;
+        int field = 0;
+        while(std::getline(lineStream, segment, '|')) {
+            try {
+                switch(field) {
+                    case 0: u.userId = segment; break;
+                    case 1: u.username = segment; break;
+                    case 2: u.passwordHash = segment; break;
+                    case 3: u.gamesPlayed = std::stoi(segment); break;
+                    case 4: u.gamesWon = std::stoi(segment); break;
+                    case 5: u.gamesLost = std::stoi(segment); break;
+                    case 6: u.gamesTied = std::stoi(segment); break;
+                    case 7: u.totalGameTimeSeconds = std::stoll(segment); break;
+                    case 8: u.currentWinStreak = std::stoi(segment); break;
+                    case 9: u.longestWinStreak = std::stoi(segment); break;
+                    case 10: u.aiGamesPlayed = std::stoi(segment); break;
+                    case 11: u.pvpGamesPlayed = std::stoi(segment); break;
+                }
+            } catch (const std::invalid_argument& e) {
+                // Handle error or corrupted data
+            }
+            field++;
+        }
+        if (!u.userId.empty()) {
+            users[u.userId] = u;
+        }
     }
     return users;
 }

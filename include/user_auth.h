@@ -23,6 +23,13 @@ struct UserProfile {
     int gamesLost;
     int gamesTied;
     
+    // --- FIELDS FOR DETAILED STATS ---
+    long long totalGameTimeSeconds = 0;
+    int currentWinStreak = 0;
+    int longestWinStreak = 0;
+    int aiGamesPlayed = 0;
+    int pvpGamesPlayed = 0;
+
     // Default constructor to initialize stats to zero.
     UserProfile() : gamesPlayed(0), gamesWon(0), gamesLost(0), gamesTied(0) {}
 };

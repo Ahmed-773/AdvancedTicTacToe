@@ -125,23 +125,30 @@ void GUIInterface::setupNavigation() {
     QVBoxLayout *navLayout = new QVBoxLayout(navigationFrame);
     navLayout->setContentsMargins(0, 20, 0, 20);
     navLayout->setSpacing(5);
-    QLabel *titleLabel = new QLabel("TicTacToe\nPro");
-    titleLabel->setObjectName("appTitle");
-    titleLabel->setAlignment(Qt::AlignCenter);
+    
+    // Create buttons with new icons
     gameNavButton = new QPushButton( " Play Game");
+    gameNavButton->setIcon(QIcon(":/play.png")); // Assumes play.png is in your resources
+    gameNavButton = new QPushButton( " Pause Game");
+    gameNavButton->setIcon(QIcon(":/pause.png")); // Assumes pause.png is in your resources
     historyNavButton = new QPushButton(" Game History");
+    historyNavButton->setIcon(QIcon(":/list.png")); // Assumes list.png
     statsNavButton = new QPushButton(" Statistics");
+    statsNavButton->setIcon(QIcon(":/bar-chart.png")); // Assumes bar-chart.png
     settingsNavButton = new QPushButton(" Settings");
+    settingsNavButton->setIcon(QIcon(":/settings.png")); // Assumes settings.png
+    
     QButtonGroup* navGroup = new QButtonGroup(this);
     navGroup->setExclusive(true);
     QPushButton* navButtons[] = {gameNavButton, historyNavButton, statsNavButton, settingsNavButton};
     for(auto* button : navButtons) {
         button->setProperty("class", "navButton");
         button->setCheckable(true);
-        button->setIconSize(QSize(24,24));
+        button->setIconSize(QSize(20, 20)); // Set a nice size for the icons
         navGroup->addButton(button);
         navLayout->addWidget(button);
     }
+    
     navLayout->addWidget(titleLabel, 0, Qt::AlignTop);
     navLayout->addSpacing(30);
     connect(gameNavButton, &QPushButton::clicked, this, &GUIInterface::switchToGameView);
@@ -151,7 +158,7 @@ void GUIInterface::setupNavigation() {
     navLayout->addStretch();
     QPushButton *logoutButton = new QPushButton(" Logout");
     logoutButton->setProperty("class", "logoutButton");
-    logoutButton->setIconSize(QSize(24,24));
+    logoutButton->setIconSize(QSize(20,20));
     connect(logoutButton, &QPushButton::clicked, this, &GUIInterface::onLogoutButtonClicked);
     navLayout->addWidget(logoutButton);
 }
@@ -446,30 +453,26 @@ void GUIInterface::setupReplayControls() {
     QHBoxLayout *replayLayout = new QHBoxLayout(replayControlsFrame);
     
     replayStartButton = new QPushButton("⏮️");
+    replayStartButton->setToolTip("Go to Start"); // Add tooltip
     replayPrevButton = new QPushButton("⏪");
+    replayPrevButton->setToolTip("Previous Move"); // Add tooltip
     replayAutoButton = new QPushButton("▶️");
+    replayAutoButton->setToolTip("Auto-Play / Pause"); // Add tooltip
     replayNextButton = new QPushButton("⏩");
-    replayPositionLabel = new QLabel("Move: 0 / 0");
+    replayNextButton->setToolTip("Next Move"); // Add tooltip
     
+    replayPositionLabel = new QLabel("Move: 0 / 0");
     replayLayout->addWidget(replayStartButton);
     replayLayout->addWidget(replayPrevButton);
     replayLayout->addWidget(replayAutoButton);
     replayLayout->addWidget(replayNextButton);
     replayLayout->addStretch();
     replayLayout->addWidget(replayPositionLabel);
-    
     connect(replayStartButton, &QPushButton::clicked, this, &GUIInterface::onReplayStartClicked);
     connect(replayPrevButton, &QPushButton::clicked, this, &GUIInterface::onReplayPrevClicked);
     connect(replayNextButton, &QPushButton::clicked, this, &GUIInterface::onReplayNextClicked);
     connect(replayAutoButton, &QPushButton::clicked, this, &GUIInterface::onReplayAutoPlay);
-    
     replayControlsFrame->setVisible(false);
-}
-
-void GUIInterface::setupReplayControls(bool visible) {
-    if(replayControlsFrame) {
-        replayControlsFrame->setVisible(visible);
-    }
 }
 
 void GUIInterface::applyTheme(Theme theme) {
@@ -648,43 +651,59 @@ void GUIInterface::onGameHistoryItemClicked(QTableWidgetItem *item) {
 
     int row = item->row();
     QVariant data = gameHistoryTable->item(row, 0)->data(Qt::UserRole);
-    if (data.isValid()) {
-        std::string gameId = data.toString().toStdString();
-        GameState game = gameHistory.getGameById(gameId);
+    if (!data.isValid()) return;
 
-        if (!game.gameId.empty()) {
-            displayGameForReplay(game);
+    std::string gameId = data.toString().toStdString();
+    GameState game = gameHistory.getGameById(gameId);
+
+    if (!game.gameId.empty()) {
+        QString details;
+        details += "<b>Game ID:</b> " + QString::fromStdString(game.gameId) + "<br>";
+        details += "<b>Date:</b> " + QString::fromStdString(game.timestamp) + "<br>";
+        details += "<b>Opponent:</b> " + QString::fromStdString(game.player2Id) + "<br>";
+        details += "<b>Result:</b> " + formatGameResult(game.result) + "<br>";
+        details += "<b>Duration:</b> " + QString::number(game.durationSeconds) + " seconds<br><br>";
+        details += "<b>Move List:</b><br>";
+
+        int moveNumber = 1;
+        for (const auto& move : game.moveHistory) {
+            QString player = (moveNumber % 2 != 0) ? "X" : "O";
+            details += QString("%1. %2 to (%3, %4)<br>").arg(moveNumber).arg(player).arg(move.row).arg(move.col);
+            moveNumber++;
         }
+
+        gameDetailsText->setHtml(details);
     }
 }
 
 void GUIInterface::handleGameOver(GameResult result) {
     isGameInProgress = false;
     gameTimer->stop();
-    
     statusLabel->setText(formatGameResult(result));
     
     if (result == GameResult::X_WINS || result == GameResult::O_WINS) {
         highlightWinningCells(gameLogic.findWinningCombination());
     }
-    // --- UI CALL: Playing an animation to make the game over state more impactful ---
     animateGameOver(result);
-    
     for (int i = 0; i < 3; ++i) for (int j = 0; j < 3; ++j) boardButtons[i][j]->setEnabled(false);
     undoButton->setEnabled(false);
     hintButton->setEnabled(false);
 
     if (userAuth.isLoggedIn()) {
-        userAuth.updateUserStats(result);
-        dbManager.saveUsers(userAuth.getUsers());
+        bool vsAI = (gameModeTab->currentIndex() == 0);
         
-        std::string opponentId = (gameModeTab->currentIndex() == 0) ? "AI" : "Player2";
+        // --- UPDATE: Pass game time and opponent type to the stats update function ---
+        userAuth.updateUserStats(result, gameTimeSeconds, vsAI);
+        
+        dbManager.saveUsers(userAuth.getUsers());
+        std::string opponentId = vsAI ? "AI" : "Player2";
         gameHistory.saveGame(userAuth.getCurrentUser()->userId, opponentId, 
-                             (gameModeTab->currentIndex() == 0), gameLogic.getMoveHistory(), result);
+                             vsAI, gameLogic.getMoveHistory(), result, gameTimeSeconds);
         dbManager.saveGameHistory(gameHistory.getAllGames());
         
+        // Refresh the UI with the new stats
+        updateScoreDisplay(); 
         updateGameStats();
-        loadUserGames();
     }
 }
 
@@ -833,18 +852,37 @@ void GUIInterface::updateScoreDisplay() {
 }
 
 void GUIInterface::updateGameStats() {
+    // Reset to default state
     totalGamesLabel->setText("Total Games: 0");
-    winRateStatsLabel->setText("Win Rate: 0%");
-    averageGameTimeLabel->setText("Avg. Game Time: 0s");
+    winRateStatsLabel->setText("Win Rate: N/A");
+    averageGameTimeLabel->setText("Avg. Game Time: N/A");
     longestStreakLabel->setText("Longest Streak: 0");
     favoriteOpponentLabel->setText("Favorite Mode: N/A");
     
     if(userAuth.isLoggedIn()){
         const UserProfile* user = userAuth.getCurrentUser();
         totalGamesLabel->setText(QString("Total Games: %1").arg(user->gamesPlayed));
-        if (user->gamesPlayed > 0) {
-            double winRate = (user->gamesPlayed - user->gamesTied > 0) ? (static_cast<double>(user->gamesWon) / (user->gamesPlayed - user->gamesTied)) * 100.0 : 0.0;
+        longestStreakLabel->setText(QString("Longest Streak: %1").arg(user->longestWinStreak));
+        
+        // Calculate Win Rate
+        if (user->gamesPlayed > user->gamesTied) {
+            double winRate = (static_cast<double>(user->gamesWon) / (user->gamesPlayed - user->gamesTied)) * 100.0;
             winRateStatsLabel->setText(QString("Win Rate: %1%").arg(winRate, 0, 'f', 1));
+        }
+        
+        // Calculate Average Game Time
+        if (user->gamesPlayed > 0) {
+            long avgTime = user->totalGameTimeSeconds / user->gamesPlayed;
+            averageGameTimeLabel->setText(QString("Avg. Game Time: %1s").arg(avgTime));
+        }
+
+        // Determine Favorite Mode
+        if (user->aiGamesPlayed > user->pvpGamesPlayed) {
+            favoriteOpponentLabel->setText("Favorite Mode: vs AI");
+        } else if (user->pvpGamesPlayed > user->aiGamesPlayed) {
+            favoriteOpponentLabel->setText("Favorite Mode: vs Player");
+        } else {
+            favoriteOpponentLabel->setText("Favorite Mode: N/A");
         }
     }
 }
