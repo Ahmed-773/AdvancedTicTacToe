@@ -169,7 +169,7 @@ void GUIInterface::setupAuthentication() {
     // --- FIX #1: This is where the logo will be added ---
     QLabel* logoLabel = new QLabel();
     QPixmap logoPixmap(":/logo.png"); // The path must match your .qrc file
-    logoLabel->setPixmap(logoPixmap.scaled(150, 150, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setPixmap(logoPixmap.scaled(300, 300, Qt::KeepAspectRatio, Qt::SmoothTransformation));//-------------Edited here-------------
     logoLabel->setAlignment(Qt::AlignCenter);
     QLabel *welcomeTitle = new QLabel("Welcome to\nAdvanced Tic Tac Toe");
     welcomeTitle->setObjectName("welcomeTitle");
