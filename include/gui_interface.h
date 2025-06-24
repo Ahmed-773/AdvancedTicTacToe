@@ -67,6 +67,7 @@ private slots:
     void onReplayStartClicked();
     void onReplayAutoPlay();
     void onGameTimerUpdate();
+    void onExitReplayClicked();
 
 private:
     DatabaseManager dbManager;
