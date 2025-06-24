@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>bar-chart.png</file>
+        <file>list.png</file>
+        <file>lock.png</file>
+        <file>logo.png</file>
+        <file>Play-Game.png</file>
+        <file>settings.png</file>
+        <file>users.png</file>
+        <file>vs AI.png</file>
+        <file>vs player.png</file>
+    </qresource>
+</RCC>
