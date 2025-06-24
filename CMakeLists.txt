@@ -25,6 +25,7 @@ add_executable(the_final_game
     ${CMAKE_CURRENT_SOURCE_DIR}/src/user_auth.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/database_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game_history.cpp
+    resources.qrc
 )
 
 target_include_directories(the_final_game PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -49,7 +50,7 @@ add_executable(benchmark
     # It needs the same backend logic as the tests
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game_logic.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ai_engine.cpp
-    resources.qrc
+
 )
 target_include_directories(benchmark PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
